@@ -62,22 +62,35 @@ export default function TeacherManagement() {
     setSuccess(null);
 
     try {
-      // Create user in auth
-      const { data, error } = await supabase.auth.admin.createUser({
-        email: formData.email,
-        password: formData.password,
-        user_metadata: {
-          full_name: formData.fullName,
-          role: 'teacher',
-          employee_id: formData.employeeId,
+      // Get the current session for authorization
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('You must be logged in to create teachers');
+      }
+
+      const response = await fetch('/api/admin/create-teacher', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          employeeId: formData.employeeId,
           department: formData.department
-        }
+        })
       });
 
-      if (error) throw error;
+      const result = await response.json();
 
-      // Profile will be created automatically via trigger
-      setSuccess(`Teacher account created successfully for ${formData.fullName}`);
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create teacher');
+      }
+
+      setSuccess(result.message);
       setFormData({
         email: "",
         password: "",

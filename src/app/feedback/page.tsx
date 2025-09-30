@@ -54,22 +54,30 @@ export default function FeedbackPage() {
     setSubmitting(true);
     setError(null);
     setSuccess(false);
-    const { data: sessionData } = await withTimeout(supabase.auth.getUser(), 5000);
-    const user = sessionData.user;
-    if (!user) {
-      router.replace("/\(auth\)/login");
-      return;
-    }
-    const { error } = await withTimeout(supabase.from("feedback").insert({
-      student_id: user.id,
-      ...form,
-    }), 5000);
-    setSubmitting(false);
-    if (error) {
-      setError(error.message);
-    } else {
-      setSuccess(true);
-      setForm({ course_code: "", instructor_name: "", rating: 5, comments: "", is_anonymous: false });
+    
+    try {
+      const { data: sessionData } = await supabase.auth.getUser();
+      const user = sessionData.user;
+      if (!user) {
+        router.replace("/login");
+        return;
+      }
+      
+      const { error } = await supabase.from("feedback").insert({
+        student_id: user.id,
+        ...form,
+      });
+      
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess(true);
+        setForm({ course_code: "", instructor_name: "", rating: 5, comments: "", is_anonymous: false });
+      }
+    } catch (error: any) {
+      setError(error.message || 'An error occurred');
+    } finally {
+      setSubmitting(false);
     }
   }
 
