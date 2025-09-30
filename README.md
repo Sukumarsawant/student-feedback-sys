@@ -1,3 +1,30 @@
+## Student Feedback System (Next.js + Supabase)
+
+### Setup
+- Copy `.env.local.example` or set the following in `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL=your-url-here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+```
+
+- In Supabase SQL editor, run `supabase/schema.sql` from the repo root to create tables and RLS.
+
+### Run
+```
+npm run dev
+```
+Visit `http://localhost:3000`.
+
+### Features
+- Email magic link login
+- Submit course feedback with optional anonymity
+- RLS policies ensure students can only write/read their own feedback; admins/instructors can read more broadly
+
+### Learn
+- Check `src/lib/supabaseServer.ts` and `src/lib/supabaseClient.ts` for client creation
+- See `src/app/(auth)/login/page.tsx` for OTP auth
+- See `src/app/feedback/page.tsx` for inserts with RLS
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
