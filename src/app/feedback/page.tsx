@@ -71,66 +71,150 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="p-6 max-w-xl mx-auto space-y-4">
-      <h1 className="text-2xl font-semibold">Submit Feedback</h1>
-      <form onSubmit={submitFeedback} className="space-y-4">
-        <input
-          className="w-full border rounded px-3 py-2"
-          placeholder="Course code (e.g., CS101)"
-          value={form.course_code}
-          onChange={(e) => setForm({ ...form, course_code: e.target.value })}
-          required
-        />
-        <input
-          className="w-full border rounded px-3 py-2"
-          placeholder="Instructor name (optional)"
-          value={form.instructor_name ?? ""}
-          onChange={(e) => setForm({ ...form, instructor_name: e.target.value })}
-        />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
         <div>
-          <label className="block mb-1">Rating (1-5)</label>
-          <input
-            type="number"
-            min={1}
-            max={5}
-            className="w-full border rounded px-3 py-2"
-            value={form.rating}
-            onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })}
-            required
-          />
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Submit Feedback
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Share your thoughts about the course
+          </p>
         </div>
-        <textarea
-          className="w-full border rounded px-3 py-2"
-          placeholder="Comments"
-          value={form.comments ?? ""}
-          onChange={(e) => setForm({ ...form, comments: e.target.value })}
-          rows={4}
-        />
-        <label className="inline-flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={form.is_anonymous}
-            onChange={(e) => setForm({ ...form, is_anonymous: e.target.checked })}
-          />
-          <span>Submit anonymously</span>
-        </label>
+        
+        <form className="mt-8 space-y-6" onSubmit={submitFeedback}>
+          <div className="rounded-md shadow-sm space-y-4">
+            <div>
+              <label htmlFor="course_code" className="block text-sm font-medium text-gray-700">
+                Course Code
+              </label>
+              <input
+                id="course_code"
+                name="course_code"
+                type="text"
+                required
+                placeholder="e.g., CS101"
+                value={form.course_code}
+                onChange={(e) => setForm({ ...form, course_code: e.target.value })}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
 
-        {error && (
-          <div className="text-red-600 text-sm">{error}</div>
-        )}
+            <div>
+              <label htmlFor="instructor_name" className="block text-sm font-medium text-gray-700">
+                Instructor Name (Optional)
+              </label>
+              <input
+                id="instructor_name"
+                name="instructor_name"
+                type="text"
+                placeholder="Enter instructor name"
+                value={form.instructor_name ?? ""}
+                onChange={(e) => setForm({ ...form, instructor_name: e.target.value })}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
 
-        {success && (
-          <div className="text-green-600 text-sm">Feedback submitted successfully!</div>
-        )}
+            <div>
+              <label htmlFor="rating" className="block text-sm font-medium text-gray-700">
+                Overall Rating
+              </label>
+              <select
+                id="rating"
+                name="rating"
+                value={form.rating}
+                onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value={1}>1 - Poor</option>
+                <option value={2}>2 - Fair</option>
+                <option value={3}>3 - Good</option>
+                <option value={4}>4 - Very Good</option>
+                <option value={5}>5 - Excellent</option>
+              </select>
+            </div>
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {submitting ? "Submitting..." : "Submit Feedback"}
-        </button>
-      </form>
+            <div>
+              <label htmlFor="comments" className="block text-sm font-medium text-gray-700">
+                Comments
+              </label>
+              <textarea
+                id="comments"
+                name="comments"
+                rows={4}
+                placeholder="Share your detailed feedback about the course..."
+                value={form.comments ?? ""}
+                onChange={(e) => setForm({ ...form, comments: e.target.value })}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="is_anonymous"
+                name="is_anonymous"
+                type="checkbox"
+                checked={form.is_anonymous}
+                onChange={(e) => setForm({ ...form, is_anonymous: e.target.checked })}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="is_anonymous" className="ml-2 block text-sm text-gray-900">
+                Submit anonymously
+              </label>
+            </div>
+          </div>
+
+          {error && (
+            <div className="rounded-md bg-red-50 p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">
+                    Error submitting feedback
+                  </h3>
+                  <div className="mt-2 text-sm text-red-700">
+                    {error}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {success && (
+            <div className="rounded-md bg-green-50 p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-green-800">
+                    Feedback submitted successfully!
+                  </h3>
+                  <div className="mt-2 text-sm text-green-700">
+                    Thank you for your valuable feedback.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Submitting...
+                </>
+              ) : (
+                'Submit Feedback'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

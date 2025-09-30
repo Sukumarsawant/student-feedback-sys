@@ -67,97 +67,104 @@ export default function Navbar() {
 
   if (loading) {
     return (
-      <nav className="border-b px-4 py-3 flex items-center gap-4">
-        <Link href="/" className="font-bold text-blue-600">
-          Student Feedback System
-        </Link>
-        <div className="text-gray-500">Loading...</div>
+      <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <Link href="/" className="text-lg font-semibold text-blue-600">
+            Student Feedback System
+          </Link>
+          <div className="text-sm text-slate-500">Loading...</div>
+        </div>
       </nav>
     );
   }
 
   return (
-    <nav className="border-b px-4 py-3 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="font-bold text-blue-600">
-          Student Feedback System
-        </Link>
-        
-        {user && (
-          <>
-            {profile?.role === 'student' && (
-              <>
-                <Link href="/student" className="text-gray-700 hover:text-blue-600">
-                  Dashboard
-                </Link>
-                <Link href="/feedback" className="text-gray-700 hover:text-blue-600">
-                  Submit Feedback
-                </Link>
-              </>
-            )}
-            
-            {profile?.role === 'teacher' && (
-              <>
-                <Link href="/teacher" className="text-gray-700 hover:text-blue-600">
-                  Dashboard
-                </Link>
-                <Link href="/teacher/manage" className="text-gray-700 hover:text-blue-600">
-                  Manage Courses
-                </Link>
-              </>
-            )}
-            
-            {profile?.role === 'admin' && (
-              <>
-                <Link href="/admin" className="text-gray-700 hover:text-blue-600">
-                  Admin Dashboard
-                </Link>
-                <Link href="/admin/teachers" className="text-gray-700 hover:text-blue-600">
-                  Manage Teachers
-                </Link>
-                <Link href="/admin/timetable" className="text-gray-700 hover:text-blue-600">
-                  Timetable
-                </Link>
-              </>
-            )}
-          </>
-        )}
-      </div>
+    <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href="/"
+            className="text-lg font-semibold tracking-tight text-slate-900 transition hover:text-blue-600"
+          >
+            Student Feedback System
+          </Link>
 
-      <div className="flex items-center gap-4">
-        {user ? (
-          <>
-            <span className="text-sm text-gray-600">
-              Welcome, {profile?.full_name || user.email}
-              {profile?.role && (
-                <span className="ml-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                  {profile.role}
-                </span>
+          {user && (
+            <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-slate-600">
+              {profile?.role === "student" && (
+                <>
+                  <Link href="/student" className="hover:text-blue-600">
+                    Dashboard
+                  </Link>
+                  <Link href="/feedback" className="hover:text-blue-600">
+                    Submit Feedback
+                  </Link>
+                </>
               )}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-            >
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <Link 
-              href="/login" 
-              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
-            >
-              Student/Teacher Login
-            </Link>
-            <Link 
-              href="/admin-login" 
-              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-            >
-              Admin Login
-            </Link>
-          </>
-        )}
+
+              {profile?.role === "teacher" && (
+                <>
+                  <Link href="/teacher" className="hover:text-blue-600">
+                    Dashboard
+                  </Link>
+                  <Link href="/teacher/manage" className="hover:text-blue-600">
+                    Manage Courses
+                  </Link>
+                </>
+              )}
+
+              {profile?.role === "admin" && (
+                <>
+                  <Link href="/admin" className="hover:text-blue-600">
+                    Admin Dashboard
+                  </Link>
+                  <Link href="/admin/teachers" className="hover:text-blue-600">
+                    Manage Teachers
+                  </Link>
+                  <Link href="/admin/timetable" className="hover:text-blue-600">
+                    Timetable
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          {user ? (
+            <>
+              <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-slate-700">
+                <span className="font-medium">{profile?.full_name || user.email}</span>
+                {profile?.role && (
+                  <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-blue-700">
+                    {profile.role}
+                  </span>
+                )}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="rounded-full bg-red-500 px-4 py-1.5 font-medium text-white shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/login"
+                className="rounded-full bg-blue-600 px-4 py-1.5 font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+              >
+                Student/Teacher Login
+              </Link>
+              <Link
+                href="/admin-login"
+                className="rounded-full bg-slate-900 px-4 py-1.5 font-medium text-white shadow-sm transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
+              >
+                Admin Login
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
