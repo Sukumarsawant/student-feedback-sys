@@ -24,57 +24,101 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No valid authorization header' }, { status: 401 });
     }
 
-    const { email, password, fullName, employeeId, department } = await request.json();
+    const { fullName, employeeId, department } = await request.json();
 
-    // Validate input
-    if (!email || !password || !fullName || !employeeId || !department) {
-      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+    if (!fullName || !employeeId || !department) {
+      return NextResponse.json({ error: 'Full name, employee ID, and department are required' }, { status: 400 });
     }
 
-    // Create the teacher user using admin client
-    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      user_metadata: {
-        full_name: fullName,
-        role: 'teacher',
-        employee_id: employeeId,
-        department: department
-      },
-      email_confirm: true
-    });
+    const teacherEmailDomain = process.env.NEXT_PUBLIC_TEACHER_EMAIL_DOMAIN || 'teachers.feedback.local';
 
-    if (createError) {
-      return NextResponse.json({ error: createError.message }, { status: 400 });
+    const firstName = fullName.trim().split(/\s+/)[0]?.toLowerCase() || '';
+    const baseUsername = firstName.replace(/[^a-z0-9]/g, '');
+
+    if (!baseUsername) {
+      return NextResponse.json({ error: 'First name must contain alphabetic characters to generate credentials' }, { status: 400 });
     }
 
-    // Create profile manually
+    if (baseUsername.length < 6) {
+      return NextResponse.json({ error: 'First name must be at least 6 characters to satisfy password requirements' }, { status: 400 });
+    }
+
+    let username: string | null = null;
+    let generatedEmail: string | null = null;
+    let newUserId: string | null = null;
+    let attempt = 0;
+    const maxAttempts = 5;
+
+    while (attempt < maxAttempts) {
+      const candidateUsername = attempt === 0 ? baseUsername : `${baseUsername}${attempt + 1}`;
+      const candidateEmail = `${candidateUsername}@${teacherEmailDomain}`;
+
+      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        email: candidateEmail,
+        password: candidateUsername,
+        user_metadata: {
+          full_name: fullName,
+          role: 'teacher',
+          employee_id: employeeId,
+          department: department,
+          username: candidateUsername
+        },
+        email_confirm: true
+      });
+
+      if (createError) {
+        // Retry on duplicate email/username, otherwise surface the error
+        if (createError.message.toLowerCase().includes('already registered')) {
+          attempt += 1;
+          continue;
+        }
+
+        return NextResponse.json({ error: createError.message }, { status: 400 });
+      }
+
+      if (!newUser.user) {
+        return NextResponse.json({ error: 'Failed to create user account' }, { status: 500 });
+      }
+
+      username = candidateUsername;
+      generatedEmail = candidateEmail;
+      newUserId = newUser.user.id;
+      break;
+    }
+
+    if (!username || !generatedEmail || !newUserId) {
+      return NextResponse.json({ error: 'Could not generate unique credentials. Try a different first name variant.' }, { status: 409 });
+    }
+
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
-      .insert({
-        id: newUser.user.id,
-        email: email,
+      .upsert({
+        id: newUserId,
+        email: generatedEmail,
         full_name: fullName,
         role: 'teacher',
         employee_id: employeeId,
         department: department
-      });
+      }, { onConflict: 'id' });
 
     if (profileError) {
       console.error('Profile creation error:', profileError);
-      // Try to clean up the user if profile creation failed
-      await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
+      await supabaseAdmin.auth.admin.deleteUser(newUserId);
       return NextResponse.json({ error: 'Failed to create teacher profile' }, { status: 500 });
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: `Teacher account created successfully for ${fullName}`,
       user: {
-        id: newUser.user.id,
-        email: newUser.user.email,
+        id: newUserId,
+        email: generatedEmail,
         full_name: fullName,
         employee_id: employeeId,
         department: department
+      },
+      credentials: {
+        username,
+        password: username
       }
     });
 

@@ -1,0 +1,93 @@
+import Link from "next/link";
+
+const footerLinks = [
+  {
+    title: "Platform",
+    items: [
+      { label: "Landing", href: "/" },
+      { label: "Student", href: "/student" },
+      { label: "Teacher", href: "/teacher" },
+      { label: "Admin", href: "/admin" }
+    ]
+  },
+  {
+    title: "Resources",
+    items: [
+      { label: "Submit Feedback", href: "/feedback" },
+      { label: "Teacher Forms", href: "/teacher/forms" },
+      { label: "Timetable", href: "/admin/timetable" }
+    ]
+  },
+  {
+    title: "Support",
+    items: [
+      { label: "Help centre", href: "#" },
+      { label: "Contact", href: "mailto:feedback@campus.edu" },
+      { label: "Status", href: "#" }
+    ]
+  }
+];
+
+export default function Footer() {
+  return (
+    <footer className="mt-16 border-t border-[var(--brand-secondary)]/40 bg-white/90">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-6 py-12 sm:px-8 lg:px-10">
+        <div className="grid gap-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="space-y-4">
+            <Link href="/" className="inline-flex items-center gap-2 text-2xl font-semibold text-[var(--brand-primary)]">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--brand-secondary)] text-[var(--brand-dark)] shadow-sm">
+                SF
+              </span>
+              Student Feedback
+            </Link>
+            <p className="max-w-md text-sm leading-relaxed text-slate-600">
+              A modern DBMS-powered platform for campuses to collect, analyse, and act on student sentiment. Empower administrators, teachers, and learners with one shared source of truth.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+              <span className="badge">Supabase Auth</span>
+              <span className="badge">Realtime Insights</span>
+              <span className="badge">DBMS Project</span>
+            </div>
+          </div>
+
+          {footerLinks.map((column) => (
+            <div key={column.title} className="space-y-4">
+              <h4 className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-dark)]/70">
+                {column.title}
+              </h4>
+              <ul className="space-y-3 text-sm text-slate-600">
+                {column.items.map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      href={item.href}
+                      className="transition hover:text-[var(--brand-primary)]"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-3 border-t border-slate-200/60 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} Student Feedback System. Crafted for the DBMS project cohort.</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="#" className="hover:text-[var(--brand-primary)]">
+              Privacy
+            </Link>
+            <span>•</span>
+            <Link href="#" className="hover:text-[var(--brand-primary)]">
+              Terms
+            </Link>
+            <span>•</span>
+            <Link href="mailto:feedback@campus.edu" className="hover:text-[var(--brand-primary)]">
+              feedback@campus.edu
+            </Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
