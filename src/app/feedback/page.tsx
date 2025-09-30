@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
@@ -25,29 +25,17 @@ export default function FeedbackPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  function withTimeout<T>(promise: Promise<T>, ms = 5000): Promise<T> {
-    return new Promise((resolve, reject) => {
-      const id = setTimeout(() => reject(new Error("Request timed out after 5s")), ms);
-      promise
-        .then((value) => {
-          clearTimeout(id);
-          resolve(value);
-        })
-        .catch((err) => {
-          clearTimeout(id);
-          reject(err);
-        });
-    });
-  }
+
+  const checkAuth = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [supabase.auth, router]);
 
   useEffect(() => {
-    (async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) {
-        router.replace("/\(auth\)/login");
-      }
-    })();
-  }, []);
+    checkAuth();
+  }, [checkAuth]);
 
   async function submitFeedback(e: React.FormEvent) {
     e.preventDefault();
@@ -74,8 +62,9 @@ export default function FeedbackPage() {
         setSuccess(true);
         setForm({ course_code: "", instructor_name: "", rating: 5, comments: "", is_anonymous: false });
       }
-    } catch (error: any) {
-      setError(error.message || 'An error occurred');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -125,14 +114,23 @@ export default function FeedbackPage() {
           />
           <span>Submit anonymously</span>
         </label>
-        <button disabled={submitting} className="bg-green-600 text-white px-4 py-2 rounded">
-          {submitting ? "Submitting..." : "Submit"}
+
+        {error && (
+          <div className="text-red-600 text-sm">{error}</div>
+        )}
+
+        {success && (
+          <div className="text-green-600 text-sm">Feedback submitted successfully!</div>
+        )}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {submitting ? "Submitting..." : "Submit Feedback"}
         </button>
-        {error && <p className="text-red-600">{error}</p>}
-        {success && <p className="text-green-600">Feedback submitted!</p>}
       </form>
     </div>
   );
 }
-
-

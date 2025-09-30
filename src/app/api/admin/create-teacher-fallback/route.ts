@@ -1,10 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 // Disable Edge Runtime for this API route
 export const runtime = 'nodejs';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // For development/testing without service role key
     return NextResponse.json({ 
@@ -12,8 +11,9 @@ export async function POST(request: NextRequest) {
       error: "Service role key required"
     }, { status: 503 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     console.error('Teacher creation error:', error);
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

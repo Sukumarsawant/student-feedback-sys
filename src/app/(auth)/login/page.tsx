@@ -98,8 +98,9 @@ export default function LoginPage() {
           // No manual profile insertion needed
         }
       }
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

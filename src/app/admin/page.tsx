@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
-import Link from "next/link";
 
 export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();

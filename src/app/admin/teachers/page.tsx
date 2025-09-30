@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
 
 interface Teacher {
@@ -35,11 +35,7 @@ export default function TeacherManagement() {
     "Administration"
   ];
 
-  useEffect(() => {
-    fetchTeachers();
-  }, []);
-
-  async function fetchTeachers() {
+  const fetchTeachers = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -49,12 +45,17 @@ export default function TeacherManagement() {
 
       if (error) throw error;
       setTeachers(data || []);
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchTeachers();
+  }, [fetchTeachers]);
 
   async function handleCreateTeacher(e: React.FormEvent) {
     e.preventDefault();
@@ -100,8 +101,9 @@ export default function TeacherManagement() {
       });
       setShowCreateForm(false);
       fetchTeachers();
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
     }
   }
 

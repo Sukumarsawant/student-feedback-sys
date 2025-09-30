@@ -12,10 +12,10 @@ export async function createSupabaseServerClient() {
         const value = cookieStore.get(name)?.value;
         return value;
       },
-      set(name: string, value: string, options: any) {
+      set(name: string, value: string, options: Record<string, unknown> = {}) {
         cookieStore.set({ name, value, ...options });
       },
-      remove(name: string, options: any) {
+      remove(name: string, options: Record<string, unknown> = {}) {
         cookieStore.set({ name, value: "", ...options });
       },
     },
