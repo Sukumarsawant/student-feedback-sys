@@ -200,7 +200,7 @@ export default function Navbar() {
               <span className="text-base font-semibold uppercase tracking-[0.3em] text-[var(--brand-dark)]/80">
                 Student Feedback
               </span>
-              <span className="text-xs font-medium text-slate-500">DBMS project platform</span>
+              <span className="text-xs font-medium text-slate-500">DBMS Project</span>
             </div>
           </Link>
 
@@ -252,7 +252,7 @@ export default function Navbar() {
   <div className="flex items-center gap-3 text-sm whitespace-nowrap">
           {loading ? (
             <div className="rounded-full bg-[var(--brand-muted)] px-3 py-1 text-slate-500">
-              Checking session…
+              Loading…
             </div>
           ) : user ? (
             <>

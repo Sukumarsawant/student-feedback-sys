@@ -154,8 +154,7 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
          question:feedback_questions ( question_type )
        )`
     )
-    .order("submitted_at", { ascending: false })
-    .returns<ResponseRow[]>();
+    .order("submitted_at", { ascending: false });
 
   if (role === "teacher") {
     responsesQuery = responsesQuery.eq("teacher_id", user.id);
@@ -167,7 +166,7 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
     responsesQuery = responsesQuery.in("courses.course_code", teacherCourseCodes);
   }
 
-  const { data: responsesData } = await responsesQuery;
+  const { data: responsesData } = await responsesQuery.returns<ResponseRow[]>();
 
   const normalizedResponses = (responsesData ?? []).map((row) => {
     const ratingAnswer = row.answers?.find((answer) => typeof answer.answer_rating === "number" && !Number.isNaN(answer.answer_rating));

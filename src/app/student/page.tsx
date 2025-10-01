@@ -55,7 +55,7 @@ export default async function StudentPage() {
               Welcome, {profile.full_name ?? "Student"}
             </h1>
             <p className="mt-4 max-w-2xl text-sm text-slate-600">
-              Stay informed about active feedback forms and keep your academic details up to date.
+              See active feedback forms and keep your details up to date.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
@@ -73,8 +73,8 @@ export default async function StudentPage() {
 
       <section className="space-y-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-2xl font-semibold text-slate-900">Available feedback forms</h2>
-          <p className="text-sm text-slate-500">Complete these to help improve your courses.</p>
+          <h2 className="text-2xl font-semibold text-slate-900">Feedback forms</h2>
+          <p className="text-sm text-slate-500">Help improve your courses.</p>
         </div>
 
         {availableForms.length > 0 ? (
@@ -115,18 +115,18 @@ export default async function StudentPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="mt-4 text-lg font-semibold text-slate-900">No feedback forms available</h3>
+            <h3 className="mt-4 text-lg font-semibold text-slate-900">No forms available</h3>
             <p className="mt-2 text-sm text-slate-500">
-              When your instructors publish new forms they will show up here—check back soon.
+              Check back later for new feedback forms.
             </p>
           </div>
         )}
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <h2 className="text-xl font-semibold text-slate-900">Your profile snapshot</h2>
+        <h2 className="text-xl font-semibold text-slate-900">Your profile</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Review your academic information and make sure everything looks correct.
+          Your academic information.
         </p>
         <dl className="mt-6 grid gap-6 sm:grid-cols-2">
           <div className="rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3">

@@ -52,7 +52,7 @@ export default function Footer() {
               Student Feedback
             </Link>
             <p className="max-w-md text-sm leading-relaxed text-slate-600">
-              A modern DBMS-powered platform for campuses to collect, analyse, and act on student sentiment. Empower administrators, teachers, and learners with one shared source of truth.
+              A feedback platform for students, teachers, and administrators. Built as a DBMS course project.
             </p>
             <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
               <span className="badge">Supabase Auth</span>
@@ -93,7 +93,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col gap-3 border-t border-slate-200/60 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Student Feedback System. Crafted for the DBMS project cohort.</p>
+          <p>© {new Date().getFullYear()} Student Feedback System. A DBMS project.</p>
           <div className="flex flex-wrap items-center gap-4">
             <Link href="#" className="hover:text-[var(--brand-primary)]">
               Privacy

@@ -3,20 +3,23 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+function getSupabaseAdmin() {
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  throw new Error("Supabase service role credentials are required for the feedback submit route.");
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    throw new Error("Supabase service role credentials are required for the feedback submit route.");
+  }
+
+  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }
-
-const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
 
 type RequestPayload = {
   courseCode: string;
@@ -47,7 +50,7 @@ function academicYearFor(date: Date) {
   return month >= 6 ? `${year}-${year + 1}` : `${year - 1}-${year}`;
 }
 
-async function ensureCourse(payload: Pick<RequestPayload, "courseCode" | "courseName">) {
+async function ensureCourse(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>, payload: Pick<RequestPayload, "courseCode" | "courseName">) {
   const { courseCode, courseName } = payload;
 
   const { data: existing, error } = await supabaseAdmin
@@ -90,7 +93,7 @@ async function ensureCourse(payload: Pick<RequestPayload, "courseCode" | "course
   return inserted.id;
 }
 
-async function resolveTeacherId(courseId: string, instructorName: string | null) {
+async function resolveTeacherId(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>, courseId: string, instructorName: string | null) {
   // First try course assignments
   const { data: assignment, error: assignmentError } = await supabaseAdmin
     .from("course_assignments")
@@ -124,7 +127,7 @@ async function resolveTeacherId(courseId: string, instructorName: string | null)
   return teacher?.id ?? null;
 }
 
-async function ensureFeedbackForm(courseId: string, createdBy: string | null) {
+async function ensureFeedbackForm(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>, courseId: string, createdBy: string | null) {
   const { data: existing, error } = await supabaseAdmin
     .from("feedback_forms")
     .select("id")
@@ -167,7 +170,7 @@ async function ensureFeedbackForm(courseId: string, createdBy: string | null) {
   return inserted.id;
 }
 
-async function ensureQuestions(formId: string) {
+async function ensureQuestions(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>, formId: string) {
   const { data: existing, error } = await supabaseAdmin
     .from("feedback_questions")
     .select("id, question_type")
@@ -225,6 +228,7 @@ async function ensureQuestions(formId: string) {
 
 export async function POST(request: Request) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
@@ -262,10 +266,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Rating must be between 1 and 5." }, { status: 400 });
     }
 
-    const courseId = await ensureCourse({ courseCode, courseName: body.courseName });
-    const teacherId = await resolveTeacherId(courseId, body.instructorName);
-    const formId = await ensureFeedbackForm(courseId, teacherId);
-    const { ratingQuestionId, commentQuestionId } = await ensureQuestions(formId);
+    const courseId = await ensureCourse(supabaseAdmin, { courseCode, courseName: body.courseName });
+    const teacherId = await resolveTeacherId(supabaseAdmin, courseId, body.instructorName);
+    const formId = await ensureFeedbackForm(supabaseAdmin, courseId, teacherId);
+    const { ratingQuestionId, commentQuestionId } = await ensureQuestions(supabaseAdmin, formId);
 
     const { data: response, error: responseError } = await supabaseAdmin
       .from("feedback_responses")

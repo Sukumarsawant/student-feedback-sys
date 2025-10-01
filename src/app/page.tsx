@@ -77,14 +77,11 @@ export default async function HomePage() {
 
         <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl space-y-6">
-            <span className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-secondary)]/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-[var(--brand-primary-dark)]">
-              Empower every voice
-            </span>
             <h1 className="text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl">
-              A vibrant feedback loop built for campuses that never stop improving.
+              Better feedback, better learning.
             </h1>
             <p className="text-base leading-relaxed text-slate-600">
-              Merge DBMS precision with human insights. Collect structured responses, surface trends for teachers, and give administrators the clarity to act faster.
+              Students share what&apos;s working. Teachers see what to fix. Everyone wins.
             </p>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -107,22 +104,19 @@ export default async function HomePage() {
           </div>
 
           <div className="glass-panel relative flex w-full max-w-sm flex-col gap-5 rounded-3xl px-8 py-10 text-[var(--brand-dark)]">
-            <span className="badge bg-white text-[var(--brand-dark)]">
-              Why it matters
-            </span>
             <p className="text-lg font-semibold">
-              &ldquo;I can build forms, share them with my class, and watch feedback trends in real time.&rdquo;
+              Create forms, collect responses, understand your classes.
             </p>
             <div className="space-y-3 text-sm text-slate-600">
-              <p>Teachers see form responses across courses instantly.</p>
-              <p>Admins get a top-down view of engagement and sentiment.</p>
-              <p>Students trust in transparent, action-oriented improvements.</p>
+              <p>Track responses across all your courses</p>
+              <p>Spot trends and improve what matters</p>
+              <p>Export data for deeper analysis</p>
             </div>
             <Link
               href="/teacher"
               className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-primary)] transition hover:text-[var(--brand-primary-dark)]"
             >
-              See the teacher experience →
+              Teacher dashboard →
             </Link>
           </div>
         </div>
@@ -130,12 +124,9 @@ export default async function HomePage() {
 
       <section id="features" className="space-y-10">
         <div className="flex flex-col gap-3">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[var(--brand-secondary)]/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--brand-dark)]/80">
-            Built for each role
-          </span>
-          <h2 className="text-3xl font-semibold text-[var(--brand-dark)]">What can you do with Student Feedback?</h2>
+          <h2 className="text-3xl font-semibold text-[var(--brand-dark)]">Built for your role</h2>
           <p className="max-w-2xl text-base text-slate-600">
-            Streamline campus communication with curated tooling for students, teachers, and administrators. Database-backed automation keeps records accurate and auditable.
+            Different tools for students, teachers, and admins. Everyone gets what they need.
           </p>
         </div>
 
@@ -143,20 +134,20 @@ export default async function HomePage() {
           {[
             {
               title: "Students",
-              description: "Share constructive feedback, track active forms, and stay in the loop with course updates.",
+              description: "Share feedback on your courses and see what's being improved.",
               cta: { href: "/feedback", label: "Submit feedback" },
               accent: "bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]",
             },
             {
               title: "Teachers",
-              description: "Launch forms, monitor responses, and convert insights into classroom experiments.",
-              cta: { href: "/teacher", label: "Teacher dashboard" },
+              description: "Create forms, see results, and improve your classes.",
+              cta: { href: "/teacher", label: "Dashboard" },
               accent: "bg-[var(--brand-accent)]/15 text-[var(--brand-accent)]",
             },
             {
               title: "Administrators",
-              description: "Oversee departments, assign teachers, and keep timetables aligned with student sentiment.",
-              cta: { href: "/admin", label: "Admin workspace" },
+              description: "Manage courses, assign teachers, and track feedback across departments.",
+              cta: { href: "/admin", label: "Admin panel" },
               accent: "bg-[var(--brand-secondary)]/25 text-[var(--brand-dark)]",
             },
           ].map((card) => (
@@ -180,21 +171,18 @@ export default async function HomePage() {
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl space-y-3">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[var(--brand-secondary)]/70 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]">
-              Meet the builders
-            </span>
             <h3 className="text-3xl font-semibold text-[var(--brand-dark)]">
-              A cross-functional crew turning student sentiment into decisions.
+              The team
             </h3>
             <p className="text-sm leading-relaxed text-slate-600">
-              Drag and drop portraits into <code className="rounded bg-slate-100 px-1.5 py-0.5 text-[var(--brand-dark)]">public/team_images</code> using the same file names listed below. The layout automatically adapts once assets are in place.
+              Built by students for a DBMS course project.
             </p>
           </div>
           <Link
             href="mailto:feedback@campus.edu"
             className="inline-flex items-center gap-2 rounded-full border border-[var(--brand-primary)]/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary)] transition hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary-dark)]"
           >
-            Collaborate with us →
+            Get in touch →
           </Link>
         </div>
 
@@ -231,12 +219,6 @@ export default async function HomePage() {
                   </p>
                 </header>
                 <p className="text-sm leading-relaxed text-slate-600">{member.bio}</p>
-                <footer className="mt-auto flex items-center justify-between pt-4 text-xs uppercase tracking-[0.2em] text-slate-400">
-                  <span>Ready for portraits</span>
-                  <span className="font-semibold text-[var(--brand-primary-dark)]/80 group-hover:text-[var(--brand-primary)]">
-                    {member.image}
-                  </span>
-                </footer>
               </div>
             </article>
           ))}
@@ -245,57 +227,54 @@ export default async function HomePage() {
 
       <section className="grid gap-6 rounded-3xl border border-[var(--brand-secondary)]/40 bg-white/90 p-10 shadow-sm lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <div className="space-y-6">
-          <span className="badge bg-[var(--brand-primary)]/15 text-[var(--brand-primary)]">
-            Teacher spotlight
-          </span>
           <h3 className="text-2xl font-semibold text-[var(--brand-dark)]">
-            Launch feedback forms in minutes and watch responses stream in.
+            For teachers
           </h3>
           <ul className="space-y-4 text-sm text-slate-600">
             <li className="flex items-start gap-3">
               <span className="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--brand-primary)]/15 text-xs font-semibold text-[var(--brand-primary)]">
                 1
               </span>
-              Draft targeted forms from curated templates or start from scratch.
+              Create forms for your courses
             </li>
             <li className="flex items-start gap-3">
               <span className="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--brand-primary)]/15 text-xs font-semibold text-[var(--brand-primary)]">
                 2
               </span>
-              Share forms with assigned courses—students get instant notifications.
+              Students fill them out
             </li>
             <li className="flex items-start gap-3">
               <span className="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--brand-primary)]/15 text-xs font-semibold text-[var(--brand-primary)]">
                 3
               </span>
-              Analyse dashboards that surface response rates, sentiment, and action items.
+              See results and trends
             </li>
           </ul>
         </div>
         <div className="glass-panel flex flex-col justify-between gap-6 rounded-3xl p-7">
           <div className="space-y-2 text-sm text-slate-600">
-            <p className="font-semibold text-[var(--brand-dark)]">Live response snapshot</p>
-            <p>Teachers see submissions roll in with sorted highlights and anonymised summaries.</p>
+            <p className="font-semibold text-[var(--brand-dark)]">Example stats</p>
+            <p>Track engagement and ratings for each course.</p>
           </div>
           <div className="grid gap-3 text-sm">
             <div className="flex items-center justify-between rounded-2xl bg-[var(--brand-secondary)]/45 px-4 py-3 text-[var(--brand-dark)]">
-              <span>Average satisfaction</span>
+              <span>Average rating</span>
               <strong>4.6 / 5</strong>
             </div>
             <div className="flex items-center justify-between rounded-2xl bg-[var(--brand-primary)]/15 px-4 py-3 text-[var(--brand-primary)]">
-              <span>Responses this week</span>
-              <strong>128</strong>
+              <span>This week</span>
+              <strong>128 responses</strong>
             </div>
             <div className="flex items-center justify-between rounded-2xl bg-[var(--brand-accent)]/20 px-4 py-3 text-[var(--brand-dark)]">
-              <span>Follow-up actions</span>
-              <strong>6 scheduled</strong>
+              <span>Completion rate</span>
+              <strong>87%</strong>
             </div>
           </div>
           <Link
             href="/teacher"
             className="btn btn-primary justify-center"
           >
-            View teacher dashboard
+            Teacher dashboard
           </Link>
         </div>
       </section>
