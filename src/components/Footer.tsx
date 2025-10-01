@@ -1,13 +1,24 @@
 import Link from "next/link";
 
-const footerLinks = [
+type FooterLinkItem = {
+  label: string;
+  href?: string;
+  note?: boolean;
+};
+
+type FooterColumn = {
+  title: string;
+  items: FooterLinkItem[];
+};
+
+const footerLinks: FooterColumn[] = [
   {
-    title: "Platform",
+    title: "Team",
     items: [
-      { label: "Landing", href: "/" },
-      { label: "Student", href: "/student" },
-      { label: "Teacher", href: "/teacher" },
-      { label: "Admin", href: "/admin" }
+      { label: "Sukumar" },
+      { label: "Gautami" },
+      { label: "Varshit" },
+      { label: "Soumya" }
     ]
   },
   {
@@ -58,12 +69,22 @@ export default function Footer() {
               <ul className="space-y-3 text-sm text-slate-600">
                 {column.items.map((item) => (
                   <li key={item.label}>
-                    <Link
-                      href={item.href}
-                      className="transition hover:text-[var(--brand-primary)]"
-                    >
-                      {item.label}
-                    </Link>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className="transition hover:text-[var(--brand-primary)]"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span
+                        className={item.note
+                          ? "text-xs font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/70"
+                          : "font-medium text-[var(--brand-dark)]/80"}
+                      >
+                        {item.label}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

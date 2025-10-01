@@ -9,18 +9,26 @@ import type { User } from "@supabase/supabase-js";
 type Profile = {
   role: string;
   full_name?: string;
+  avatar_url?: string | null;
 } | null;
 
 const roleNavItems: Record<string, { href: string; label: string }> = {
-  student: { href: "/student", label: "Students" },
-  teacher: { href: "/teacher", label: "Teachers" },
-  admin: { href: "/admin", label: "Admin" }
+  student: { href: "/student", label: "Dashboard" },
+  teacher: { href: "/teacher", label: "Dashboard" },
+  admin: { href: "/admin", label: "Dashboard" }
+};
+
+type NavLink = {
+  href: string;
+  label: string;
+  variant?: "link" | "primary" | "outline";
 };
 
 type SupabaseProfileRow = {
   role: string | null;
   full_name?: string | null;
   fullName?: string | null;
+  avatar_url?: string | null;
 };
 
 function resolveProfileRecord(profile: SupabaseProfileRow | null, user: User | null): Profile {
@@ -33,6 +41,7 @@ function resolveProfileRecord(profile: SupabaseProfileRow | null, user: User | n
     return {
       role: profile.role.toLowerCase(),
       full_name: profileFullName,
+      avatar_url: profile.avatar_url ?? null,
     };
   }
 
@@ -46,6 +55,7 @@ function resolveProfileRecord(profile: SupabaseProfileRow | null, user: User | n
     (typeof metadata.full_name === "string" && metadata.full_name) ||
     (typeof metadata.fullName === "string" && metadata.fullName) ||
     undefined;
+  const avatarMeta = typeof metadata.avatar_url === "string" ? metadata.avatar_url : undefined;
 
   if (!role) {
     return null;
@@ -54,6 +64,7 @@ function resolveProfileRecord(profile: SupabaseProfileRow | null, user: User | n
   return {
     role: role.toLowerCase(),
     full_name: fullNameMeta,
+    avatar_url: avatarMeta ?? null,
   };
 }
 
@@ -64,18 +75,34 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile>(null);
   const [loading, setLoading] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  const navLinks = useMemo(() => {
-    const base = [
+  const navLinks = useMemo<NavLink[]>(() => {
+    const links: NavLink[] = [
       { href: "/", label: "Home" },
-      { href: "/feedback", label: "Feedback" }
+      { href: "/#team", label: "Team" },
     ];
 
-    if (profile?.role && roleNavItems[profile.role]) {
-      return [...base, roleNavItems[profile.role]];
+    const role = profile?.role;
+
+    if (!role) {
+      links.push(
+        { href: "/login?role=student", label: "Student Login", variant: "primary" },
+        { href: "/login?role=teacher", label: "Teacher Login", variant: "outline" },
+        { href: "/admin-login", label: "Admin Login", variant: "outline" }
+      );
+      return links;
     }
 
-    return [...base, roleNavItems.student, roleNavItems.teacher, roleNavItems.admin];
+    if (roleNavItems[role]) {
+      links.push(roleNavItems[role]);
+    }
+
+    if (role !== "student") {
+      links.push({ href: "/analytics", label: "Analytics" });
+    }
+
+    return links;
   }, [profile?.role]);
 
   useEffect(() => {
@@ -124,20 +151,28 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
+      setLoggingOut(true);
+
+      const [clientResult, serverResult] = await Promise.allSettled([
+        supabase.auth.signOut(),
+        fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+      ]);
+
+      if (clientResult.status === 'rejected') {
+        throw clientResult.reason;
       }
 
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      if (serverResult.status === 'rejected') {
+        throw serverResult.reason;
+      }
 
-      if (!response.ok) {
-        const body = await response.text();
+      if (!serverResult.value.ok) {
+        const body = await serverResult.value.text();
         throw new Error(body || 'Failed to complete sign out');
       }
 
@@ -148,12 +183,14 @@ export default function Navbar() {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to sign out';
       console.error("Failed to sign out:", message);
+    } finally {
+      setLoggingOut(false);
     }
   };
 
   return (
     <nav className="sticky top-0 z-50 border-b border-[var(--brand-secondary)]/50 bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4 sm:px-8">
+  <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4 sm:px-8">
         <div className="flex flex-wrap items-center gap-6">
           <Link href="/" className="flex items-center gap-3">
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--brand-secondary)] text-lg font-bold uppercase text-[var(--brand-dark)] shadow-sm">
@@ -167,17 +204,42 @@ export default function Navbar() {
             </div>
           </Link>
 
-          <div className="hidden items-center gap-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-600 lg:flex">
+          <div className="hidden items-center gap-3 text-sm font-semibold uppercase tracking-[0.25em] text-slate-600 lg:flex">
             {navLinks.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+              if (item.variant === "primary") {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="inline-flex items-center rounded-full bg-[var(--brand-primary)] px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white shadow-sm transition hover:bg-[var(--brand-primary-dark)]"
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
+
+              if (item.variant === "outline") {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="inline-flex items-center rounded-full border border-[var(--brand-primary)]/40 px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--brand-primary)] transition hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary-dark)]"
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
+
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-full px-4 py-2 transition ${
+                    className={`rounded-full px-4 py-2 text-slate-700 transition ${
                     isActive
-                      ? "bg-[var(--brand-primary)]/15 text-[var(--brand-primary)]"
-                      : "hover:bg-[var(--brand-secondary)]/50 hover:text-[var(--brand-primary)]"
+                      ? "bg-[var(--brand-primary)]/15 text-[var(--brand-primary)] shadow-sm"
+                        : "link-hover hover:bg-[var(--brand-secondary)]/45 hover:text-[var(--brand-primary)]"
                   }`}
                 >
                   {item.label}
@@ -187,7 +249,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 text-sm">
+  <div className="flex items-center gap-3 text-sm whitespace-nowrap">
           {loading ? (
             <div className="rounded-full bg-[var(--brand-muted)] px-3 py-1 text-slate-500">
               Checking session…
@@ -198,9 +260,20 @@ export default function Navbar() {
                 href="/profile"
                 className="inline-flex h-11 items-center gap-3 rounded-full border border-[var(--brand-primary)]/40 bg-white px-4 text-sm font-semibold text-[var(--brand-primary)] shadow-sm transition hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary-dark)]"
               >
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--brand-primary)]/15 text-sm font-semibold text-[var(--brand-primary)]">
-                  {profile?.full_name?.charAt(0)?.toUpperCase() ?? user.email?.charAt(0)?.toUpperCase() ?? "U"}
-                </span>
+                {profile?.avatar_url ? (
+                  <span className="inline-flex h-9 w-9 overflow-hidden rounded-full border border-[var(--brand-primary)]/40 bg-white/60">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.full_name ?? user.email ?? "Profile avatar"}
+                      className="h-full w-full object-cover"
+                    />
+                  </span>
+                ) : (
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--brand-primary)]/15 text-sm font-semibold text-[var(--brand-primary)]">
+                    {profile?.full_name?.charAt(0)?.toUpperCase() ?? user.email?.charAt(0)?.toUpperCase() ?? "U"}
+                  </span>
+                )}
                 <span className="hidden sm:inline">
                   {profile?.full_name || user.email}
                 </span>
@@ -212,19 +285,29 @@ export default function Navbar() {
               </Link>
               <button
                 onClick={handleLogout}
-                className="btn btn-primary h-11 whitespace-nowrap px-6"
+                disabled={loggingOut}
+                className="btn btn-primary h-11 whitespace-nowrap px-6 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Logout
+                {loggingOut ? 'Signing out…' : 'Logout'}
               </button>
             </>
           ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              <Link href="/login" className="btn btn-primary">
-                Student / Teacher Login
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-600 lg:hidden">
+              <Link
+                href="/login?role=student"
+                className="inline-flex items-center rounded-full bg-[var(--brand-primary)] px-4 py-2 text-white"
+              >
+                Student Login
+              </Link>
+              <Link
+                href="/login?role=teacher"
+                className="inline-flex items-center rounded-full border border-[var(--brand-primary)]/40 px-4 py-2 text-[var(--brand-primary)]"
+              >
+                Teacher Login
               </Link>
               <Link
                 href="/admin-login"
-                className="inline-flex items-center justify-center rounded-full border border-[var(--brand-primary)]/40 bg-white px-4 py-2 text-sm font-semibold text-[var(--brand-primary)] shadow-sm transition hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary-dark)]"
+                className="inline-flex items-center rounded-full border border-[var(--brand-primary)]/40 px-4 py-2 text-[var(--brand-primary)]"
               >
                 Admin Login
               </Link>

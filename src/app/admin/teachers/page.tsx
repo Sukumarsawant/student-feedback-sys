@@ -267,7 +267,7 @@ export default function TeacherManagement() {
       <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 shadow-[0_20px_45px_-25px_rgba(15,23,42,0.35)]">
         <div className="flex flex-col gap-2 border-b border-slate-200/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-lg font-semibold text-slate-900">All teachers ({teachers.length})</h3>
-          <p className="text-sm text-slate-500">Automated credentials ensure passwords align with first names.</p>
+          <p className="text-sm text-slate-500">Default teacher password is <span className="font-semibold text-slate-700">123456</span>. Coordinate with admin support before changing.</p>
         </div>
 
         {teachers.length === 0 ? (

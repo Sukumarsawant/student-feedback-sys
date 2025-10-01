@@ -6,7 +6,9 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start -p 3001",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:admin": "node -r dotenv/config scripts/seed-admin.cjs",
+    "emails:normalize": "node -r dotenv/config scripts/normalize-email-domains.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -21,6 +23,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16.6.1",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",

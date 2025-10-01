@@ -1,37 +1,52 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-const TEACHER_EMAIL_DOMAIN = process.env.NEXT_PUBLIC_TEACHER_EMAIL_DOMAIN ?? "teachers.feedback.local";
+const VIT_EMAIL_DOMAIN = process.env.NEXT_PUBLIC_VIT_EMAIL_DOMAIN ?? "vit.edu.in";
+const TEACHER_EMAIL_DOMAIN = process.env.NEXT_PUBLIC_TEACHER_EMAIL_DOMAIN ?? VIT_EMAIL_DOMAIN;
+const DEFAULT_TEACHER_PASSWORD = process.env.NEXT_PUBLIC_DEFAULT_TEACHER_PASSWORD ?? "123456";
 
 export default function LoginPage() {
   const supabase = createSupabaseBrowserClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [studentEmail, setStudentEmail] = useState("");
+  const [studentPassword, setStudentPassword] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("student");
   const [department, setDepartment] = useState("");
   const [year, setYear] = useState(1);
   const [enrollmentNumber, setEnrollmentNumber] = useState("");
-  const [loginRole, setLoginRole] = useState<'student' | 'teacher'>('student');
+  const [activeLoginRole, setActiveLoginRole] = useState<'student' | 'teacher'>(() => {
+    const roleParam = searchParams.get("role");
+    return roleParam === "teacher" ? "teacher" : "student";
+  });
   const [teacherLoginName, setTeacherLoginName] = useState("");
-  const [teacherPassword, setTeacherPassword] = useState("");
+  const [teacherPassword, setTeacherPassword] = useState(DEFAULT_TEACHER_PASSWORD);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   const trimmedTeacherLogin = teacherLoginName.trim();
-  const teacherPreviewUsername = trimmedTeacherLogin.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const teacherPreviewUsername = trimmedTeacherLogin.toLowerCase().replace(/[^a-z0-9]/g, "");
   const shouldShowTeacherPreview =
-    loginRole === 'teacher' &&
+    activeLoginRole === "teacher" &&
     trimmedTeacherLogin.length > 0 &&
-    !trimmedTeacherLogin.includes('@') &&
+    !trimmedTeacherLogin.includes("@") &&
     teacherPreviewUsername.length > 0;
+
+  useEffect(() => {
+    const paramRole = searchParams.get("role");
+    if (paramRole === "teacher" || paramRole === "student") {
+      setActiveLoginRole(paramRole);
+    }
+  }, [searchParams]);
 
   function withTimeout<T>(promise: Promise<T>, ms = 5000): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -57,31 +72,51 @@ export default function LoginPage() {
     try {
       if (isLogin) {
         // Login
-        let loginEmail = email.trim();
-        let loginPassword = password;
+        let loginEmail = "";
+        let loginPassword = "";
 
-        if (loginRole === 'teacher') {
+        if (activeLoginRole === "teacher") {
           const identifier = teacherLoginName.trim();
           if (!identifier) {
-            throw new Error('Enter your teacher username or email to sign in.');
+            throw new Error("Enter your teacher username or email to sign in.");
           }
 
-          const providedPassword = teacherPassword.trim();
+          const preparedPassword = teacherPassword.trim();
+          if (!preparedPassword) {
+            throw new Error("Enter your teacher password to sign in.");
+          }
 
-          if (identifier.includes('@')) {
-            loginEmail = identifier.toLowerCase();
-            if (!providedPassword) {
-              throw new Error('Enter your teacher password to sign in.');
+          if (identifier.includes("@")) {
+            const normalizedTeacherEmail = identifier.toLowerCase();
+            if (!normalizedTeacherEmail.endsWith(`@${TEACHER_EMAIL_DOMAIN}`)) {
+              throw new Error(`Teacher accounts must use @${TEACHER_EMAIL_DOMAIN} email addresses.`);
             }
-            loginPassword = providedPassword;
+            loginEmail = normalizedTeacherEmail;
           } else {
-            const sanitized = identifier.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const sanitized = identifier.toLowerCase().replace(/[^a-z0-9]/g, "");
             if (!sanitized) {
-              throw new Error('Enter a valid teacher username (letters and numbers only).');
+              throw new Error("Enter a valid teacher username (letters and numbers only).");
             }
             loginEmail = `${sanitized}@${TEACHER_EMAIL_DOMAIN}`;
-            loginPassword = providedPassword || sanitized;
           }
+
+          loginPassword = preparedPassword;
+        } else {
+          const normalizedStudentEmail = studentEmail.trim().toLowerCase();
+          if (!normalizedStudentEmail) {
+            throw new Error("Enter your student email to sign in.");
+          }
+          if (!normalizedStudentEmail.endsWith(`@${VIT_EMAIL_DOMAIN}`)) {
+            throw new Error(`Please sign in with your institutional email (…@${VIT_EMAIL_DOMAIN}).`);
+          }
+
+          const normalizedPassword = studentPassword.trim();
+          if (!normalizedPassword) {
+            throw new Error("Enter your password to sign in.");
+          }
+
+          loginEmail = normalizedStudentEmail;
+          loginPassword = normalizedPassword;
         }
 
         const { data, error } = await withTimeout(
@@ -116,10 +151,15 @@ export default function LoginPage() {
         }
       } else {
         // Sign up - SIMPLIFIED VERSION
+        const trimmedEmail = signupEmail.trim().toLowerCase();
+        if (!trimmedEmail.endsWith(`@${VIT_EMAIL_DOMAIN}`)) {
+          throw new Error(`Use your institutional email ending with @${VIT_EMAIL_DOMAIN} to sign up.`);
+        }
+
         const { data, error } = await withTimeout(
           supabase.auth.signUp({
-            email,
-            password,
+            email: trimmedEmail,
+            password: signupPassword,
             options: {
               data: {
                 full_name: fullName,
@@ -150,37 +190,37 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_#6366f11a,_transparent_60%),radial-gradient(circle_at_bottom,_#8b5cf614,_transparent_55%),linear-gradient(120deg,_#0f172a,_#1e1b4b_45%,_#312e81_70%,_#1e40af)]" />
+    <div className="relative min-h-screen overflow-hidden bg-[var(--background)]">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),_transparent_65%),radial-gradient(circle_at_bottom,_rgba(34,197,94,0.14),_transparent_60%),linear-gradient(120deg,_#eff6ff,_#dbeafe_45%,_#bfdbfe_72%,_#f8fafc)]" />
       <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-start justify-center gap-12 px-6 py-16 sm:px-10 lg:flex-row lg:items-center lg:justify-between">
-        <div className="hidden max-w-xl flex-1 flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-10 text-white shadow-[0_25px_60px_-30px_rgba(15,23,42,0.65)] backdrop-blur lg:flex">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-indigo-100">
+  <div className="hidden max-w-xl flex-1 flex-col gap-6 rounded-3xl border border-white/30 bg-white/20 p-10 text-[var(--foreground)] shadow-[0_30px_70px_-35px_rgba(15,23,42,0.45)] backdrop-blur lg:flex">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/60 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[var(--brand-primary-dark)]">
             Student feedback system
           </span>
           <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
             Share insights, elevate courses, celebrate great teaching.
           </h1>
-          <p className="text-base leading-relaxed text-indigo-100/80">
+          <p className="text-base leading-relaxed text-slate-700">
             Every response helps teachers tailor their sessions, departments refine curricula, and classmates succeed. Sign in to continue the conversation—or create an account and join the loop of continuous improvement.
           </p>
-          <div className="mt-auto grid gap-4 text-sm text-indigo-50/80">
-            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3">
-              <p className="font-medium text-white">Fast dual-mode sign in</p>
+          <div className="mt-auto grid gap-4 text-sm text-slate-600">
+            <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3">
+              <p className="font-medium text-slate-900">Fast dual-mode sign in</p>
               <p>Switch between student and teacher login tailored to your role.</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3">
-              <p className="font-medium text-white">Secure profiles</p>
+            <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3">
+              <p className="font-medium text-slate-900">Secure profiles</p>
               <p>Profiles sync automatically with Supabase so details stay current.</p>
             </div>
           </div>
         </div>
 
         <div className="relative w-full max-w-md flex-1">
-          <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-white/90 p-8 shadow-[0_20px_40px_-20px_rgba(30,64,175,0.45)] backdrop-blur">
-            <div className="absolute -top-24 right-12 h-48 w-48 rounded-full bg-indigo-200/60 blur-3xl" />
-            <div className="absolute -bottom-28 left-16 h-40 w-40 rounded-full bg-purple-200/60 blur-3xl" />
+          <div className="relative overflow-hidden rounded-3xl border border-white/50 bg-white/90 p-8 shadow-[0_24px_60px_-28px_rgba(30,64,175,0.45)] backdrop-blur">
+            <div className="absolute -top-24 right-12 h-48 w-48 rounded-full bg-[color-mix(in_srgb,_var(--brand-primary)_55%,_white_45%)] blur-3xl" />
+            <div className="absolute -bottom-28 left-16 h-40 w-40 rounded-full bg-[color-mix(in_srgb,_var(--brand-secondary)_60%,_white_40%)] blur-3xl" />
             <div className="relative">
-              <span className="inline-flex rounded-full bg-indigo-100 px-4 py-1 text-xs font-medium uppercase tracking-wide text-indigo-700">
+              <span className="inline-flex rounded-full bg-[var(--brand-secondary)] px-4 py-1 text-xs font-medium uppercase tracking-wide text-[var(--brand-primary-dark)]">
                 {isLogin ? "Sign in" : "Create account"}
               </span>
               <h2 className="mt-4 text-3xl font-bold text-slate-900">
@@ -285,33 +325,38 @@ export default function LoginPage() {
                     </div>
 
                     <div>
-                      <label htmlFor="email" className="text-sm font-medium text-slate-600">
+                      <label htmlFor="signupEmail" className="text-sm font-medium text-slate-600">
                         Email address
                       </label>
                       <input
-                        id="email"
-                        name="email"
+                        id="signupEmail"
+                        name="signupEmail"
                         type="email"
                         autoComplete="email"
                         required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={signupEmail}
+                        onChange={(e) => setSignupEmail(e.target.value)}
                         className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                       />
+                      <p className="mt-2 text-xs text-slate-500">
+                        Only VIT institutional accounts are accepted (example: yourname
+                        <span className="font-semibold text-slate-700">@{VIT_EMAIL_DOMAIN}</span>
+                        ).
+                      </p>
                     </div>
 
                     <div>
-                      <label htmlFor="password" className="text-sm font-medium text-slate-600">
+                      <label htmlFor="signupPassword" className="text-sm font-medium text-slate-600">
                         Password
                       </label>
                       <input
-                        id="password"
-                        name="password"
+                        id="signupPassword"
+                        name="signupPassword"
                         type="password"
                         autoComplete="current-password"
                         required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={signupPassword}
+                        onChange={(e) => setSignupPassword(e.target.value)}
                         className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                       />
                     </div>
@@ -319,61 +364,76 @@ export default function LoginPage() {
                 ) : (
                   <>
                     <div>
-                      <label htmlFor="loginRole" className="text-sm font-medium text-slate-600">
-                        Sign in as
-                      </label>
-                      <select
-                        id="loginRole"
-                        name="loginRole"
-                        value={loginRole}
-                        onChange={(e) => {
-                          const nextRole = e.target.value as 'student' | 'teacher';
-                          setLoginRole(nextRole);
-                          if (nextRole === 'student') {
-                            setTeacherLoginName('');
-                            setTeacherPassword('');
-                          } else {
-                            setPassword('');
-                          }
-                        }}
-                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                      >
-                        <option value="student">Student</option>
-                        <option value="teacher">Teacher</option>
-                      </select>
+                      <span className="text-sm font-medium text-slate-600">Sign in as</span>
+                      <div className="mt-2 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
+                        {[
+                          { value: "student" as const, label: "Student" },
+                          { value: "teacher" as const, label: "Teacher" }
+                        ].map((option) => {
+                          const isActive = activeLoginRole === option.value;
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => {
+                                setActiveLoginRole(option.value);
+                                setError(null);
+                                setMessage(null);
+                                if (option.value === "student") {
+                                  setTeacherLoginName("");
+                                  setTeacherPassword(DEFAULT_TEACHER_PASSWORD);
+                                } else {
+                                  setStudentPassword("");
+                                }
+                              }}
+                              className={`rounded-2xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
+                                isActive
+                                  ? "bg-white text-slate-900 shadow-sm"
+                                  : "text-slate-600 hover:bg-white/70"
+                              }`}
+                            >
+                              {option.label}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    {loginRole === 'student' ? (
+                    {activeLoginRole === "student" ? (
                       <>
                         <div>
-                          <label htmlFor="email" className="text-sm font-medium text-slate-600">
+                          <label htmlFor="studentEmail" className="text-sm font-medium text-slate-600">
                             Email address
                           </label>
                           <input
-                            id="email"
-                            name="email"
+                            id="studentEmail"
+                            name="studentEmail"
                             type="email"
                             autoComplete="email"
                             required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            value={studentEmail}
+                            onChange={(e) => setStudentEmail(e.target.value)}
+                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                           />
+                          <p className="mt-2 text-xs text-slate-500">
+                            Sign in with your
+                            <span className="font-semibold text-slate-700"> @{VIT_EMAIL_DOMAIN}</span> student email.
+                          </p>
                         </div>
 
                         <div>
-                          <label htmlFor="password" className="text-sm font-medium text-slate-600">
+                          <label htmlFor="studentPassword" className="text-sm font-medium text-slate-600">
                             Password
                           </label>
                           <input
-                            id="password"
-                            name="password"
+                            id="studentPassword"
+                            name="studentPassword"
                             type="password"
                             autoComplete="current-password"
                             required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            value={studentPassword}
+                            onChange={(e) => setStudentPassword(e.target.value)}
+                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                           />
                         </div>
                       </>
@@ -390,7 +450,7 @@ export default function LoginPage() {
                             required
                             value={teacherLoginName}
                             onChange={(e) => setTeacherLoginName(e.target.value)}
-                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                           />
                           {shouldShowTeacherPreview && (
                             <p className="mt-2 text-xs text-slate-500">
@@ -407,13 +467,14 @@ export default function LoginPage() {
                             id="teacherPassword"
                             name="teacherPassword"
                             type="password"
+                            required
                             value={teacherPassword}
                             onChange={(e) => setTeacherPassword(e.target.value)}
-                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                            placeholder="Leave blank if it matches your username"
+                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                           />
                           <p className="mt-2 text-xs text-slate-500">
-                            Admins can reset your password. Leave this blank if you use the default (username) password.
+                            Default teacher password is
+                            <span className="font-semibold text-slate-700"> {DEFAULT_TEACHER_PASSWORD}</span> (update with admin support if changed).
                           </p>
                         </div>
                       </div>
@@ -447,9 +508,13 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => {
                     setIsLogin(!isLogin);
-                    setLoginRole('student');
+                    setActiveLoginRole("student");
                     setTeacherLoginName('');
-                    setTeacherPassword('');
+                    setTeacherPassword(DEFAULT_TEACHER_PASSWORD);
+                    setStudentEmail('');
+                    setStudentPassword('');
+                    setSignupEmail('');
+                    setSignupPassword('');
                     setError(null);
                     setMessage(null);
                   }}
@@ -467,9 +532,6 @@ export default function LoginPage() {
               </div>
             </form>
           </div>
-          <p className="mt-6 text-center text-xs font-medium uppercase tracking-[0.35em] text-indigo-100/70 lg:text-left">
-            Powered by Supabase · Secure sessions by Next.js
-          </p>
         </div>
       </div>
     </div>

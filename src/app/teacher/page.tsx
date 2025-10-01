@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import Link from "next/link";
 
 export default async function TeacherPage() {
   const supabase = await createSupabaseServerClient();
@@ -47,25 +48,25 @@ export default async function TeacherPage() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-8">
-      <section className="overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-8 text-white shadow-xl">
+      <section className="overflow-hidden rounded-3xl border border-[var(--brand-secondary)]/60 bg-white/95 p-8 text-[var(--brand-dark)] shadow-[0_35px_90px_-55px_rgba(15,23,42,0.35)]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-emerald-100/90">Teacher dashboard</p>
-            <h1 className="mt-2 text-3xl font-bold leading-tight sm:text-4xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary)]">Teacher dashboard</p>
+            <h1 className="mt-2 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
               Hello, {profile.full_name ?? "Instructor"}
             </h1>
-            <p className="mt-4 max-w-2xl text-sm text-emerald-50/90">
+            <p className="mt-4 max-w-2xl text-sm text-slate-600">
               Manage your courses, keep track of student feedback, and stay ahead of your teaching goals.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-            <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
-              <p className="text-emerald-100/90">Courses this term</p>
-              <p className="text-lg font-semibold text-white">{courses.length}</p>
+          <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Courses this term</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">{courses.length}</p>
             </div>
-            <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
-              <p className="text-emerald-100/90">Department</p>
-              <p className="text-lg font-semibold text-white">{profile.department ?? "—"}</p>
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Department</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">{profile.department ?? "—"}</p>
             </div>
           </div>
         </div>
@@ -110,18 +111,18 @@ export default async function TeacherPage() {
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-600"
+                  <Link
+                    href={`/analytics?course=${encodeURIComponent(assignment.courses?.course_code ?? "")}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-medium text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-600"
                   >
-                    View feedback
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full bg-slate-900 px-4 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-700"
+                    View analytics
+                  </Link>
+                  <Link
+                    href="/analytics"
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-1.5 text-sm font-medium text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-700"
                   >
-                    Reports
-                  </button>
+                    Open dashboard
+                  </Link>
                 </div>
               </article>
             ))}

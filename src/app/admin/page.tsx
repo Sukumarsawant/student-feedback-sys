@@ -102,33 +102,33 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-8">
-      <section className="overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 text-white shadow-xl">
+      <section className="overflow-hidden rounded-3xl border border-[var(--brand-secondary)]/60 bg-white/95 p-8 text-[var(--brand-dark)] shadow-[0_35px_90px_-55px_rgba(15,23,42,0.35)]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-blue-100/90">Admin Dashboard</p>
-            <h1 className="mt-2 text-3xl font-bold leading-tight sm:text-4xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary)]">Admin dashboard</p>
+            <h1 className="mt-2 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
               Welcome back, {profile.full_name ?? "Administrator"}
             </h1>
-            <p className="mt-4 max-w-2xl text-sm text-blue-50/90">
+            <p className="mt-4 max-w-2xl text-sm text-slate-600">
               Here&rsquo;s an at-a-glance view of everything happening across the feedback system today.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-            <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
-              <p className="text-blue-100/90">Role</p>
-              <p className="text-lg font-semibold text-white capitalize">{profile.role}</p>
+          <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Role</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900 capitalize">{profile.role}</p>
             </div>
-            <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
-              <p className="text-blue-100/90">Department</p>
-              <p className="text-lg font-semibold text-white">{profile.department ?? "—"}</p>
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Department</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">{profile.department ?? "—"}</p>
             </div>
-            <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
-              <p className="text-blue-100/90">Employee ID</p>
-              <p className="text-lg font-semibold text-white">{profile.employee_id ?? "—"}</p>
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Employee ID</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">{profile.employee_id ?? "—"}</p>
             </div>
-            <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
-              <p className="text-blue-100/90">Active Forms</p>
-              <p className="text-lg font-semibold text-white">{totalActiveForms}</p>
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Active forms</p>
+              <p className="mt-2 text-lg font-semibold text-slate-900">{totalActiveForms}</p>
             </div>
           </div>
         </div>

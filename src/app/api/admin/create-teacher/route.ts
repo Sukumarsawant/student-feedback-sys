@@ -30,17 +30,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Full name, employee ID, and department are required' }, { status: 400 });
     }
 
-    const teacherEmailDomain = process.env.NEXT_PUBLIC_TEACHER_EMAIL_DOMAIN || 'teachers.feedback.local';
+      const teacherEmailDomain = process.env.NEXT_PUBLIC_TEACHER_EMAIL_DOMAIN || 'vit.edu.in';
+      const teacherDefaultPassword = process.env.NEXT_PUBLIC_DEFAULT_TEACHER_PASSWORD || '123456';
 
     const firstName = fullName.trim().split(/\s+/)[0]?.toLowerCase() || '';
     const baseUsername = firstName.replace(/[^a-z0-9]/g, '');
 
     if (!baseUsername) {
       return NextResponse.json({ error: 'First name must contain alphabetic characters to generate credentials' }, { status: 400 });
-    }
-
-    if (baseUsername.length < 6) {
-      return NextResponse.json({ error: 'First name must be at least 6 characters to satisfy password requirements' }, { status: 400 });
     }
 
     let username: string | null = null;
@@ -55,13 +52,14 @@ export async function POST(request: NextRequest) {
 
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email: candidateEmail,
-        password: candidateUsername,
+        password: teacherDefaultPassword,
         user_metadata: {
           full_name: fullName,
           role: 'teacher',
           employee_id: employeeId,
           department: department,
-          username: candidateUsername
+        username: candidateUsername,
+        default_password: teacherDefaultPassword
         },
         email_confirm: true
       });
@@ -110,15 +108,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: `Teacher account created successfully for ${fullName}`,
       user: {
-        id: newUserId,
-        email: generatedEmail,
-        full_name: fullName,
-        employee_id: employeeId,
-        department: department
+      id: newUserId,
+      email: generatedEmail,
+      full_name: fullName,
+      employee_id: employeeId,
+      department: department
       },
       credentials: {
-        username,
-        password: username
+      username,
+      email: generatedEmail,
+      password: teacherDefaultPassword
       }
     });
 

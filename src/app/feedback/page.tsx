@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 type TeacherOption = {
   id: string;
+  teacherId: string | null;
   courseCode: string;
   courseName: string;
   instructorName: string;
@@ -17,44 +18,20 @@ type FeedbackFormState = {
   is_anonymous: boolean;
 };
 
-const teacherOptions: TeacherOption[] = [
-  {
-    id: "dbms",
-    courseCode: "DBMS",
-    courseName: "Database Management Systems",
-    instructorName: "Dr. Sachin Deshmukh",
-  },
-  {
-    id: "microprocessor",
-    courseCode: "MP",
-    courseName: "Microprocessor",
-    instructorName: "Mrs. Suvarna Bhat",
-  },
-  {
-    id: "design-thinking",
-    courseCode: "DT",
-    courseName: "Design Thinking",
-    instructorName: "Dr. Sachin Bojewar",
-  },
-  {
-    id: "ematics-3",
-    courseCode: "EM3",
-    courseName: "Engineering Mathematics 3",
-    instructorName: "Khimya Amlani",
-  },
-  {
-    id: "presentation-skills",
-    courseCode: "PS",
-    courseName: "Presentation Skills",
-    instructorName: "Asmita Neve",
-  },
-  {
-    id: "analysis-of-algorithm",
-    courseCode: "AOA",
-    courseName: "Analysis of Algorithm",
-    instructorName: "Dr. Swapnil Sonawane",
-  },
-];
+type AssignmentRow = {
+  id: string;
+  teacher_id: string | null;
+  courses:
+    | {
+        course_code: string | null;
+        course_name: string | null;
+      }
+    | Array<{
+        course_code: string | null;
+        course_name: string | null;
+      }>
+    | null;
+};
 
 export default function FeedbackPage() {
   const supabase = createSupabaseBrowserClient();
@@ -64,22 +41,123 @@ export default function FeedbackPage() {
     comments: "",
     is_anonymous: false,
   });
+  const [teacherOptions, setTeacherOptions] = useState<TeacherOption[]>([]);
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+  const [optionsError, setOptionsError] = useState<string | null>(null);
   const selectedTeacher = teacherOptions.find((option) => option.id === selectedTeacherId);
 
   const checkAuth = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.replace("/login");
+      return;
     }
-  }, [supabase.auth, router]);
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const role = (profile?.role || user.user_metadata?.role || "").toString().toLowerCase();
+
+    if (role && role !== 'student') {
+      router.replace('/analytics');
+      return;
+    }
+
+    setAuthorized(true);
+  }, [supabase, router]);
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  const loadTeacherOptions = useCallback(async () => {
+    if (!authorized) {
+      return;
+    }
+
+    setLoadingOptions(true);
+    setOptionsError(null);
+
+    const { data: assignments, error: assignmentsError } = await supabase
+      .from("course_assignments")
+      .select("id, teacher_id, courses ( course_code, course_name )")
+      .order("created_at", { ascending: true })
+      .returns<AssignmentRow[]>();
+
+    if (assignmentsError) {
+      setTeacherOptions([]);
+      setSelectedTeacherId("");
+      setOptionsError("Unable to load course list. Please try again later.");
+      setLoadingOptions(false);
+      return;
+    }
+
+    const teacherIds = Array.from(
+      new Set((assignments ?? []).map((assignment) => assignment.teacher_id).filter((id): id is string => Boolean(id)))
+    );
+
+    const teacherNameMap = new Map<string, string>();
+
+    if (teacherIds.length > 0) {
+      const { data: teacherProfiles } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", teacherIds);
+
+      teacherProfiles?.forEach((profile) => {
+        if (profile?.id) {
+          teacherNameMap.set(profile.id, profile.full_name ?? "Faculty");
+        }
+      });
+    }
+
+    const normalized = (assignments ?? [])
+      .map((assignment) => {
+        const courseRecord = Array.isArray(assignment.courses)
+          ? assignment.courses[0] ?? null
+          : assignment.courses ?? null;
+        const courseCode = courseRecord?.course_code ?? "";
+        const courseName = courseRecord?.course_name ?? "Untitled course";
+        const teacherId = assignment.teacher_id ?? null;
+        const instructorName = teacherId ? teacherNameMap.get(teacherId) ?? "Faculty" : "Faculty";
+
+        return {
+          id: assignment.id as string,
+          teacherId,
+          courseCode,
+          courseName,
+          instructorName,
+        } satisfies TeacherOption;
+      })
+      .filter((option) => option.courseCode || option.courseName);
+
+    setTeacherOptions(normalized);
+    setSelectedTeacherId((current) => {
+      if (normalized.length === 0) {
+        return "";
+      }
+
+      return normalized.some((option) => option.id === current) ? current : normalized[0].id;
+    });
+
+    setLoadingOptions(false);
+  }, [authorized, supabase]);
+
+  useEffect(() => {
+    if (!authorized) {
+      return;
+    }
+
+    loadTeacherOptions();
+  }, [authorized, loadTeacherOptions]);
 
   async function submitFeedback(e: React.FormEvent) {
     e.preventDefault();
@@ -100,23 +178,33 @@ export default function FeedbackPage() {
         router.replace("/login");
         return;
       }
-      
-      const { error } = await supabase.from("feedback").insert({
-        student_id: user.id,
-        course_code: selectedTeacher.courseCode,
-        instructor_name: selectedTeacher.instructorName,
-        rating: form.rating,
-        comments: form.comments || null,
-        is_anonymous: form.is_anonymous,
+
+      const response = await fetch("/api/feedback/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseCode: selectedTeacher.courseCode,
+          courseName: selectedTeacher.courseName,
+          instructorName: selectedTeacher.instructorName,
+          rating: form.rating,
+          comments: form.comments || null,
+          isAnonymous: form.is_anonymous,
+        }),
       });
-      
-      if (error) {
-        setError(error.message);
-      } else {
-        setSuccess(true);
-        setForm({ rating: 5, comments: "", is_anonymous: false });
-        setSelectedTeacherId("");
+
+      const payload = await response.json();
+
+      if (!response.ok) {
+        const message = typeof payload?.error === "string" ? payload.error : "Failed to submit feedback.";
+        setError(message);
+        return;
       }
+
+      setSuccess(true);
+      setForm({ rating: 5, comments: "", is_anonymous: false });
+  setSelectedTeacherId(teacherOptions[0]?.id ?? "");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       setError(errorMessage);
@@ -125,27 +213,43 @@ export default function FeedbackPage() {
     }
   }
 
+  if (!authorized) {
+    return (
+      <div className="mx-auto flex h-[60vh] w-full max-w-4xl items-center justify-center px-6">
+        <div className="flex flex-col items-center gap-3 rounded-3xl border border-slate-200/70 bg-white/80 px-10 py-12 text-slate-600 shadow-[0_25px_60px_-30px_rgba(79,70,229,0.35)]">
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border-4 border-slate-200 border-t-[var(--brand-primary)] text-[var(--brand-primary)]">
+            <svg className="h-6 w-6 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v4m0 8v4m8-8h-4M8 12H4m12.364 5.364l-2.828-2.828M8.464 8.464 5.636 5.636m12.728 0-2.828 2.828M8.464 15.536l-2.828 2.828" />
+            </svg>
+          </span>
+          <p className="text-sm font-semibold uppercase tracking-[0.4em] text-[var(--brand-primary)]">Loading</p>
+          <p className="text-sm text-slate-500">Preparing your feedback studio…</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
-      <section className="overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 text-white shadow-xl">
+      <section className="overflow-hidden rounded-3xl border border-[var(--brand-secondary)]/60 bg-white/95 p-8 text-[var(--brand-dark)] shadow-[0_35px_80px_-45px_rgba(15,23,42,0.35)]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/70">Feedback studio</p>
-            <h1 className="mt-2 text-3xl font-bold leading-tight sm:text-4xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary)]">Feedback studio</p>
+            <h1 className="mt-2 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
               Tell us how your learning experience feels right now.
             </h1>
-            <p className="mt-4 max-w-2xl text-sm text-indigo-50/90">
+            <p className="mt-4 max-w-2xl text-sm text-slate-600">
               Your insights spotlight what works—and what needs a tune-up. The more you share, the better we can co-create remarkable classrooms.
             </p>
           </div>
-          <div className="grid gap-3 text-sm sm:grid-cols-2">
-            <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
-              <p className="text-indigo-50/80">Average rating submitted</p>
-              <p className="text-2xl font-semibold text-white">{form.rating}</p>
+          <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Average rating selected</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{form.rating}</p>
             </div>
-            <div className="rounded-2xl bg-white/15 px-4 py-3 backdrop-blur">
-              <p className="text-indigo-50/80">Active educators</p>
-              <p className="text-2xl font-semibold text-white">{teacherOptions.length}</p>
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Active educators</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{loadingOptions ? "—" : teacherOptions.length}</p>
             </div>
           </div>
         </div>
@@ -168,7 +272,35 @@ export default function FeedbackPage() {
             </div>
 
             <div className="grid gap-3">
-              {teacherOptions.map((option) => {
+              {loadingOptions && (
+                <div className="flex items-center gap-3 rounded-3xl border border-slate-200/80 bg-white p-5 text-sm text-slate-500">
+                  <svg className="h-5 w-5 animate-spin text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v4m0 8v4m8-8h-4M8 12H4m12.364 5.364l-2.828-2.828M8.464 8.464 5.636 5.636m12.728 0-2.828 2.828M8.464 15.536l-2.828 2.828" />
+                  </svg>
+                  Fetching your class list…
+                </div>
+              )}
+
+              {!loadingOptions && optionsError && (
+                <div className="flex flex-col gap-3 rounded-3xl border border-rose-200 bg-rose-50/80 p-5 text-sm text-rose-600">
+                  <p>{optionsError}</p>
+                  <button
+                    type="button"
+                    onClick={() => loadTeacherOptions()}
+                    className="inline-flex w-fit items-center gap-2 rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-rose-500"
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
+
+              {!loadingOptions && !optionsError && teacherOptions.length === 0 && (
+                <div className="rounded-3xl border border-amber-200 bg-amber-50/80 p-5 text-sm text-amber-700">
+                  No course assignments are linked to your account yet. Check back soon or contact the academic office.
+                </div>
+              )}
+
+              {!loadingOptions && !optionsError && teacherOptions.map((option) => {
                 const isSelected = selectedTeacherId === option.id;
                 return (
                   <label
@@ -274,7 +406,7 @@ export default function FeedbackPage() {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || loadingOptions || !selectedTeacherId}
             className="inline-flex w-full items-center justify-center rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:-translate-y-0.5 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {submitting ? (
@@ -291,25 +423,25 @@ export default function FeedbackPage() {
           </button>
         </form>
 
-        <aside className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-indigo-950/80 p-6 text-indigo-50 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.6)] backdrop-blur">
+        <aside className="flex flex-col gap-6 rounded-3xl border border-[var(--brand-secondary)]/60 bg-white/95 p-6 text-slate-600 shadow-[0_25px_60px_-40px_rgba(15,23,42,0.35)]">
           <div className="space-y-2">
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-indigo-100/80">
+            <p className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-secondary)]/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]">
               Why it matters
             </p>
-            <h3 className="text-lg font-semibold">Your words become action items.</h3>
-            <p className="text-sm text-indigo-100/80">
+            <h3 className="text-lg font-semibold text-slate-900">Your words become action items.</h3>
+            <p className="text-sm">
               Faculty leads review sentiment weekly and turn suggestions into experiments. Standout feedback is celebrated in monthly retros.
             </p>
           </div>
-          <div className="space-y-3 rounded-2xl border border-white/15 bg-white/5 p-4">
-            <h4 className="text-sm font-semibold">Need anonymity?</h4>
-            <p className="text-sm text-indigo-100/80">
+          <div className="space-y-3 rounded-2xl border border-[var(--brand-secondary)]/60 bg-[var(--brand-secondary)]/30 p-4 text-sm">
+            <h4 className="font-semibold text-slate-900">Need anonymity?</h4>
+            <p>
               All submissions are stored securely. If you opt in for anonymity, only admins see aggregated metrics—never your name.
             </p>
           </div>
-          <div className="space-y-3 rounded-2xl border border-white/15 bg-white/5 p-4">
-            <h4 className="text-sm font-semibold">Want to follow up?</h4>
-            <p className="text-sm text-indigo-100/80">
+          <div className="space-y-3 rounded-2xl border border-[var(--brand-secondary)]/60 bg-[var(--brand-secondary)]/30 p-4 text-sm">
+            <h4 className="font-semibold text-slate-900">Want to follow up?</h4>
+            <p>
               Drop a note to your class representative or email the academic office with the form ID for deeper conversations.
             </p>
           </div>

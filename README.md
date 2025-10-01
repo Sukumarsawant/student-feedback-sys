@@ -5,9 +5,16 @@
 ```
 NEXT_PUBLIC_SUPABASE_URL=your-url-here
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_ROLE_KEY=service-role-key-here
+NEXT_PUBLIC_VIT_EMAIL_DOMAIN=vit.edu.in
+NEXT_PUBLIC_TEACHER_EMAIL_DOMAIN=vit.edu.in
+NEXT_PUBLIC_DEFAULT_TEACHER_PASSWORD=123456
+ADMIN_EMAIL=admin@vit.edu.in
+ADMIN_PASSWORD=123456
 ```
 
 - In Supabase SQL editor, run `supabase/schema.sql` from the repo root to create tables and RLS.
+- (Optional) Run `npm run seed:admin` once to create or update the default campus admin account using the credentials above.
 
 ### Run
 ```
