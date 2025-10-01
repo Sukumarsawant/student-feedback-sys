@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import StepsSlider from "@/components/StepsSlider";
 
 const roleRouteMap: Record<string, string> = {
   admin: "/admin",
@@ -168,61 +169,8 @@ export default async function HomePage() {
           </p>
         </div>
 
-        {/* Steps Grid */}
-        <div className="grid gap-6 md:grid-cols-3">
-          {[
-            {
-              step: "1",
-              title: "Sign In",
-              description: "Login with your VIT email. Students, teachers, and admins all have their own portals.",
-              icon: "👤",
-              color: "from-blue-500 to-indigo-600"
-            },
-            {
-              step: "2",
-              title: "Create or Fill Forms",
-              description: "Teachers launch feedback forms. Students receive instant notifications and submit responses.",
-              icon: "📝",
-              color: "from-purple-500 to-pink-600"
-            },
-            {
-              step: "3",
-              title: "View Analytics",
-              description: "Teachers get live dashboards with response rates, sentiment analysis, and actionable insights.",
-              icon: "📊",
-              color: "from-green-500 to-emerald-600"
-            }
-          ].map((item, index) => (
-            <div 
-              key={index} 
-              className="glass-card rounded-3xl p-8 hover-lift border-2 border-white relative overflow-hidden"
-            >
-              {/* Background gradient */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-5`} />
-              
-              {/* Content */}
-              <div className="relative space-y-4">
-                {/* Icon and Step Number */}
-                <div className="flex items-center justify-between">
-                  <div className="text-5xl">{item.icon}</div>
-                  <div className={`h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br ${item.color} text-white font-bold text-xl shadow-lg`}>
-                    {item.step}
-                  </div>
-                </div>
-
-                {/* Title */}
-                <h3 className="text-2xl font-bold text-[var(--brand-dark)]">
-                  {item.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-base font-medium text-[var(--brand-dark)] leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Steps Slider */}
+        <StepsSlider />
       </section>
 
       {/* Reviews Slider Section */}

@@ -73,11 +73,16 @@ export default function Navbar() {
   // Scroll effect for navbar compression
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const scrolled = window.scrollY > 50;
+      setIsScrolled(scrolled);
+      // Close login dropdown when scrolling
+      if (scrolled && showLoginDropdown) {
+        setShowLoginDropdown(false);
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [showLoginDropdown]);
 
   useEffect(() => {
     // Get initial user
@@ -155,16 +160,16 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`fixed left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl px-4 transition-all duration-500 ease-out animate-slide-down ${
-      isScrolled ? 'top-2' : 'top-6'
+    <nav className={`fixed left-1/2 -translate-x-1/2 z-50 w-full px-4 transition-all duration-500 ease-out animate-slide-down ${
+      isScrolled ? 'top-2 max-w-2xl' : 'top-6 max-w-6xl'
     }`}>
       <div className={`glass-navbar-enhanced flex items-center rounded-full transition-all duration-500 ease-out ${
-        isScrolled ? 'px-4 py-2.5 gap-2 justify-center' : 'px-6 py-3.5 gap-4 justify-between'
+        isScrolled ? 'px-5 py-2.5 justify-between' : 'px-8 py-4 justify-between'
       }`}>
         
         {/* Left Navigation Icons */}
         <div className={`flex items-center transition-all duration-500 ease-out ${
-          isScrolled ? 'gap-1.5' : 'gap-2'
+          isScrolled ? 'gap-1' : 'gap-2.5'
         }`}>
           {/* Home Icon */}
           <Link 
@@ -218,14 +223,25 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Center Divider */}
-        {!isScrolled && (
-          <div className="hidden md:block h-9 w-px bg-gradient-to-b from-transparent via-gray-300/70 to-transparent mx-1"></div>
-        )}
-        
+        {/* Center Logo */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center transition-all duration-500 ease-out">
+          <Link href="/" className="transition-transform duration-300 hover:scale-105">
+            <Image
+              src="/images/logo/Gemini_Generated_Image_hm72xfhm72xfhm72-removebg-preview.png"
+              alt="Logo"
+              width={isScrolled ? 80 : 120}
+              height={isScrolled ? 27 : 40}
+              className={`h-auto object-contain transition-all duration-500 ease-out ${
+                isScrolled ? 'w-[80px]' : 'w-[120px]'
+              }`}
+              priority
+            />
+          </Link>
+        </div>
+
         {/* Right Navigation */}
         <div className={`flex items-center transition-all duration-500 ease-out ${
-          isScrolled ? 'gap-1.5' : 'gap-2'
+          isScrolled ? 'gap-1 ml-auto' : 'gap-2.5 ml-auto'
         }`}>
           {/* Dashboard/Forms Icon */}
           <Link
@@ -243,13 +259,12 @@ export default function Navbar() {
               className={`nav-icon ${pathname === "/feedback" || pathname === "/analytics" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
             />
           </Link>
+        </div>
 
-          {/* Divider */}
-          {!isScrolled && (
-            <div className="h-9 w-px bg-gradient-to-b from-transparent via-gray-300/70 to-transparent mx-1"></div>
-          )}
-          
-          {/* Profile or Login */}
+        {/* Profile or Login Section */}
+        <div className={`flex items-center transition-all duration-500 ease-out ${
+          isScrolled ? 'ml-3' : 'ml-6'
+        }`}>
           {loading ? (
             <div className={`flex items-center gap-2.5 rounded-full bg-gray-100/80 transition-all duration-500 ease-out ${
               isScrolled ? 'px-3 py-2' : 'px-4 py-2.5'
@@ -324,36 +339,27 @@ export default function Navbar() {
                 Login
               </button>
               {showLoginDropdown && (
-                <div className="absolute right-0 mt-3 w-48 bg-white/98 backdrop-blur-xl rounded-2xl shadow-[0_12px_40px_rgb(0,0,0,0.15)] py-2.5 animate-scale-in border-2 border-gray-900/10 overflow-hidden">
+                <div className="absolute right-0 mt-3 w-44 bg-white backdrop-blur-xl rounded-xl shadow-[0_12px_40px_rgb(0,0,0,0.15)] py-2 animate-scale-in border border-gray-200 overflow-hidden">
                   <Link
                     href="/login?role=student"
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+                    className="block px-5 py-3 text-sm font-medium !text-black hover:bg-gray-50 transition-colors duration-200"
                     onClick={() => setShowLoginDropdown(false)}
                   >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-blue-600 font-bold text-xs shadow-sm">
-                      S
-                    </span>
-                    <span>Student</span>
+                    Student
                   </Link>
                   <Link
                     href="/login?role=teacher"
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-green-50 hover:text-green-600 transition-all duration-200"
+                    className="block px-5 py-3 text-sm font-medium !text-black hover:bg-gray-50 transition-colors duration-200"
                     onClick={() => setShowLoginDropdown(false)}
                   >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-100 text-green-600 font-bold text-xs shadow-sm">
-                      T
-                    </span>
-                    <span>Teacher</span>
+                    Teacher
                   </Link>
                   <Link
                     href="/admin-login"
-                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200"
+                    className="block px-5 py-3 text-sm font-medium !text-black hover:bg-gray-50 transition-colors duration-200"
                     onClick={() => setShowLoginDropdown(false)}
                   >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-100 text-purple-600 font-bold text-xs shadow-sm">
-                      A
-                    </span>
-                    <span>Admin</span>
+                    Admin
                   </Link>
                 </div>
               )}
