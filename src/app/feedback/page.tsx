@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type TeacherOption = {
   id: string;
@@ -10,6 +10,7 @@ type TeacherOption = {
   courseCode: string;
   courseName: string;
   instructorName: string;
+  courseId: string | null;
 };
 
 type FeedbackFormState = {
@@ -21,6 +22,7 @@ type FeedbackFormState = {
 type AssignmentRow = {
   id: string;
   teacher_id: string | null;
+  course_id: string | null;
   courses:
     | {
         course_code: string | null;
@@ -36,6 +38,8 @@ type AssignmentRow = {
 export default function FeedbackPage() {
   const supabase = createSupabaseBrowserClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlCourseId = searchParams.get('course_id');
   const [form, setForm] = useState<FeedbackFormState>({
     rating: 5,
     comments: "",
@@ -88,7 +92,7 @@ export default function FeedbackPage() {
 
     const { data: assignments, error: assignmentsError } = await supabase
       .from("course_assignments")
-      .select("id, teacher_id, courses ( course_code, course_name )")
+      .select("id, teacher_id, course_id, courses ( course_code, course_name )")
       .order("created_at", { ascending: true })
       .returns<AssignmentRow[]>();
 
@@ -127,11 +131,13 @@ export default function FeedbackPage() {
         const courseCode = courseRecord?.course_code ?? "";
         const courseName = courseRecord?.course_name ?? "Untitled course";
         const teacherId = assignment.teacher_id ?? null;
+        const courseId = assignment.course_id ?? null;
         const instructorName = teacherId ? teacherNameMap.get(teacherId) ?? "Faculty" : "Faculty";
 
         return {
           id: assignment.id as string,
           teacherId,
+          courseId,
           courseCode,
           courseName,
           instructorName,
@@ -145,11 +151,19 @@ export default function FeedbackPage() {
         return "";
       }
 
+      // If URL has course_id, try to select that course
+      if (urlCourseId) {
+        const matchingOption = normalized.find((option) => option.courseId === urlCourseId);
+        if (matchingOption) {
+          return matchingOption.id;
+        }
+      }
+
       return normalized.some((option) => option.id === current) ? current : normalized[0].id;
     });
 
     setLoadingOptions(false);
-  }, [authorized, supabase]);
+  }, [authorized, supabase, urlCourseId]);
 
   useEffect(() => {
     if (!authorized) {
@@ -270,12 +284,12 @@ export default function FeedbackPage() {
             </p>
           </div>
           <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Your rating</p>
+            <div className="rounded-2xl border border-amber-200/60 bg-gradient-to-br from-amber-50 to-yellow-50 px-4 py-3 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-amber-700 font-semibold">Your rating</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">{form.rating}</p>
             </div>
-            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Courses</p>
+            <div className="rounded-2xl border border-indigo-200/60 bg-gradient-to-br from-indigo-50 to-blue-50 px-4 py-3 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-indigo-700 font-semibold">Courses</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">{loadingOptions ? "—" : teacherOptions.length}</p>
             </div>
           </div>

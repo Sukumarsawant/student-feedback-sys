@@ -362,8 +362,16 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
           <h2 className="text-xl font-semibold text-slate-900">Course performance</h2>
           <p className="mt-1 text-sm text-slate-500">Identify standout classrooms and where support is needed.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            {courseCards.map((course) => (
-              <article key={course.code} className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+            {courseCards.map((course, index) => {
+              const colors = [
+                { border: 'border-blue-200', bg: 'bg-gradient-to-br from-blue-50 to-cyan-50', badge: 'bg-blue-100 text-blue-700' },
+                { border: 'border-rose-200', bg: 'bg-gradient-to-br from-rose-50 to-pink-50', badge: 'bg-rose-100 text-rose-700' },
+                { border: 'border-emerald-200', bg: 'bg-gradient-to-br from-emerald-50 to-teal-50', badge: 'bg-emerald-100 text-emerald-700' },
+                { border: 'border-purple-200', bg: 'bg-gradient-to-br from-purple-50 to-violet-50', badge: 'bg-purple-100 text-purple-700' },
+              ];
+              const colorScheme = colors[index % colors.length];
+              return (
+                <article key={course.code} className={`rounded-2xl border ${colorScheme.border} ${colorScheme.bg} p-5 shadow-md transition-all hover:shadow-xl`}>
                 <header className="flex items-center justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900">{course.name}</h3>
@@ -378,7 +386,8 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
                 </header>
                 <p className="mt-4 text-sm text-slate-600">{course.responses} responses collected.</p>
               </article>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
@@ -416,17 +425,25 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
           <h2 className="text-xl font-semibold text-slate-900">Instructor leaderboard</h2>
           <p className="mt-1 text-sm text-slate-500">Compare engagement across departments to plan recognition and follow-ups.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            {Array.from(teacherBreakdown.entries()).map(([name, info]) => (
-              <article key={name} className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                <header className="flex items-center justify-between gap-4">
-                  <h3 className="text-lg font-semibold text-slate-900">{name}</h3>
-                  <span className="badge" data-tone="primary">
-                    {info.responses ? Number((info.ratingSum / info.responses).toFixed(2)) : "—"}
-                  </span>
-                </header>
-                <p className="mt-3 text-sm text-slate-600">{info.responses} responses logged.</p>
-              </article>
-            ))}
+            {Array.from(teacherBreakdown.entries()).map(([name, info], index) => {
+              const colors = [
+                { border: 'border-pink-200', bg: 'bg-gradient-to-br from-pink-50 to-rose-50' },
+                { border: 'border-cyan-200', bg: 'bg-gradient-to-br from-cyan-50 to-sky-50' },
+                { border: 'border-lime-200', bg: 'bg-gradient-to-br from-lime-50 to-green-50' },
+              ];
+              const colorScheme = colors[index % colors.length];
+              return (
+                <article key={name} className={`rounded-2xl border ${colorScheme.border} ${colorScheme.bg} p-5 shadow-sm transition-all hover:shadow-lg`}>
+                  <header className="flex items-center justify-between gap-4">
+                    <h3 className="text-lg font-semibold text-slate-900">{name}</h3>
+                    <span className="badge" data-tone="primary">
+                      {info.responses ? Number((info.ratingSum / info.responses).toFixed(2)) : "—"}
+                    </span>
+                  </header>
+                  <p className="mt-3 text-sm text-slate-600">{info.responses} responses logged.</p>
+                </article>
+              );
+            })}
           </div>
         </section>
       )}

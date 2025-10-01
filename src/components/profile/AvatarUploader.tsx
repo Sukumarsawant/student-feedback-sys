@@ -106,22 +106,22 @@ export default function AvatarUploader({ userId, fullName, initialUrl }: AvatarU
 
   return (
     <div className="flex flex-col items-center gap-4 text-sm text-slate-600">
-      <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-white/70 bg-white/70 shadow-lg ring-4 ring-white/40">
+      <div className="relative flex h-48 w-48 items-center justify-center overflow-hidden rounded-full border-2 border-white/70 bg-white/70 shadow-lg ring-4 ring-white/40 group">
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={previewUrl} alt={`${fullName}'s avatar`} className="h-full w-full object-cover" />
         ) : (
-          <span className="text-3xl font-semibold text-[var(--brand-primary)]">
+          <span className="text-5xl font-semibold text-[var(--brand-primary)]">
             {fullName?.charAt(0)?.toUpperCase() || "U"}
           </span>
         )}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-[var(--brand-primary)] px-3 py-1 text-xs font-semibold text-white shadow-sm transition hover:bg-[var(--brand-primary-dark)]"
+          className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 text-white font-semibold"
           disabled={uploading}
         >
-          {uploading ? "Uploading…" : "Update"}
+          {uploading ? "Uploading…" : "Change Photo"}
         </button>
       </div>
       <input

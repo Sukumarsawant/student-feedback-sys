@@ -19,16 +19,49 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  // refresh the session
-  await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
+  const { pathname } = req.nextUrl;
+
+  // Auth pages - redirect if already logged in
+  if (pathname.startsWith('/login') || pathname.startsWith('/admin-login')) {
+    if (session?.user) {
+      // Use cached role from session metadata to avoid DB query
+      const userRole = (session.user.user_metadata?.role || 'student').toString().toLowerCase();
+      
+      if (userRole === 'admin') {
+        return NextResponse.redirect(new URL('/admin', req.url));
+      } else if (userRole === 'teacher') {
+        return NextResponse.redirect(new URL('/teacher', req.url));
+      } else {
+        return NextResponse.redirect(new URL('/student', req.url));
+      }
+    }
+  }
+
+  // Protected routes - redirect to login if not authenticated
+  const protectedPaths = ['/feedback', '/admin', '/teacher', '/student', '/profile', '/analytics', '/reviews'];
+  const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
+  
+  if (isProtectedPath && !session?.user) {
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
+
   return res;
 }
 
 export const config = {
   matcher: [
-    // protect these routes or refresh session on them
+    // Auth pages
+    "/login/:path*",
+    "/admin-login/:path*",
+    // Protected routes
     "/feedback/:path*",
     "/admin/:path*",
+    "/teacher/:path*",
+    "/student/:path*",
+    "/profile/:path*",
+    "/analytics/:path*",
+    "/reviews/:path*",
   ],
 };
 

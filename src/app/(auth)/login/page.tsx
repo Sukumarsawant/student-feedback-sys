@@ -32,6 +32,7 @@ function LoginPageContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   const trimmedTeacherLogin = teacherLoginName.trim();
   const teacherPreviewUsername = trimmedTeacherLogin.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -48,9 +49,71 @@ function LoginPageContent() {
     }
   }, [searchParams]);
 
-  function withTimeout<T>(promise: Promise<T>, ms = 5000): Promise<T> {
+  // Check URL for auth errors
+  useEffect(() => {
+    const urlError = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
+    const errorCode = searchParams.get('error_code');
+    
+    if (urlError) {
+      // Clear error from URL
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('error');
+      newUrl.searchParams.delete('error_description');
+      newUrl.searchParams.delete('error_code');
+      newUrl.hash = '';
+      window.history.replaceState({}, '', newUrl.pathname + newUrl.search);
+      
+      // Show user-friendly error message
+      if (errorCode === 'otp_expired') {
+        setError('Your login link has expired. Please log in again.');
+      } else if (errorDescription) {
+        setError(decodeURIComponent(errorDescription.replace(/\+/g, ' ')));
+      } else {
+        setError('Authentication error. Please try again.');
+      }
+    }
+  }, [searchParams]);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        setCheckingAuth(true);
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // Verify session is still valid
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          
+          if (user && !userError) {
+            // Use cached role from session metadata for instant redirect
+            const userRole = (user.user_metadata?.role || 'student').toString().toLowerCase();
+            
+            if (userRole === 'admin') {
+              router.replace('/admin');
+            } else if (userRole === 'teacher') {
+              router.replace('/teacher');
+            } else {
+              router.replace('/student');
+            }
+          } else {
+            // Session invalid, clear it
+            await supabase.auth.signOut();
+          }
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, [supabase, router, searchParams]);
+
+  function withTimeout<T>(promise: Promise<T>, ms = 15000): Promise<T> {
     return new Promise((resolve, reject) => {
-      const id = setTimeout(() => reject(new Error("Request timed out after 5s")), ms);
+      const id = setTimeout(() => reject(new Error("Request timed out. Please check your connection and try again.")), ms);
       promise
         .then((value) => {
           clearTimeout(id);
@@ -206,6 +269,14 @@ function LoginPageContent() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[var(--background)]">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(53,71,212,0.16),_transparent_65%),radial-gradient(circle_at_bottom,_rgba(232,96,79,0.16),_transparent_60%),linear-gradient(120deg,_#fdf9ef,_#f6deac_45%,_#f3e3c2_72%,_#f9f6f1)]" />
+      {checkingAuth ? (
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-[var(--brand-primary)]" />
+            <p className="text-sm text-slate-600">Checking session...</p>
+          </div>
+        </div>
+      ) : (
       <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-start justify-center gap-12 px-6 py-16 sm:px-10 lg:flex-row lg:items-center lg:justify-between">
   <div className="hidden max-w-xl flex-1 flex-col gap-6 rounded-3xl border border-white/35 bg-white/25 p-10 text-[var(--foreground)] shadow-[0_30px_70px_-35px_rgba(26,20,41,0.45)] backdrop-blur lg:flex">
           <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/60 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[var(--brand-primary-dark)]">
@@ -548,6 +619,8 @@ function LoginPageContent() {
           </div>
         </div>
       </div>
+      )
+      }
     </div>
   );
 }

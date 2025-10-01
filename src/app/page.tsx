@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import StepsSlider from "@/components/StepsSlider";
 import IntroWrapper from "@/components/IntroWrapper";
@@ -10,22 +11,28 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: profile } = user
-    ? await supabase.from("profiles").select("role, full_name").eq("id", user.id).single()
-    : { data: null };
+  // If user is logged in, redirect to their dashboard immediately
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    
+    const userRole = (profile?.role || user.user_metadata?.role || 'student').toString().toLowerCase();
+    
+    if (userRole === 'admin') {
+      redirect('/admin');
+    } else if (userRole === 'teacher') {
+      redirect('/teacher');
+    } else {
+      redirect('/student');
+    }
+  }
 
-  const dashboardHref = profile
-    ? profile.role === "student"
-      ? "/student"
-      : profile.role === "teacher"
-        ? "/teacher"
-        : profile.role === "admin"
-          ? "/admin"
-          : "/"
-    : "/login";
-
-  const exploreHref = user ? "/reviews" : "/team";
-  const exploreLabel = user ? "Explore Reviews" : "Meet the Team";
+  const dashboardHref = "/login";
+  const exploreHref = "/team";
+  const exploreLabel = "Meet the Team";
 
   return (
     <IntroWrapper>
@@ -85,11 +92,7 @@ export default async function HomePage() {
               </div>
             </dl>
 
-            {profile?.full_name && (
-              <p className="text-xs uppercase tracking-[0.4em] text-white/90 font-semibold">
-                Welcome back, {profile.full_name}
-              </p>
-            )}
+            {/* Logged in users are redirected, so this won't show for them */}
           </div>
 
           <div className="relative w-full max-w-lg">

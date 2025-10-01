@@ -118,20 +118,20 @@ export default async function AdminPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
-            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Role</p>
+            <div className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50 px-4 py-3 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-indigo-700">Role</p>
               <p className="mt-2 text-lg font-semibold text-slate-900 capitalize">{profile.role}</p>
             </div>
-            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Department</p>
+            <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 px-4 py-3 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-emerald-700">Department</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{profile.department ?? "—"}</p>
             </div>
-            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Employee ID</p>
+            <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 px-4 py-3 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-violet-700">Employee ID</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{profile.employee_id ?? "—"}</p>
             </div>
-            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Active forms</p>
+            <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 px-4 py-3 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-amber-700">Active forms</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{totalActiveForms}</p>
             </div>
           </div>

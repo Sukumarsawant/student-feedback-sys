@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +12,31 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        
+        const userRole = (profile?.role || session.user.user_metadata?.role || '').toString().toLowerCase();
+        
+        if (userRole === 'admin') {
+          router.replace('/admin');
+        } else if (userRole === 'teacher') {
+          router.replace('/teacher');
+        } else if (userRole === 'student') {
+          router.replace('/student');
+        }
+      }
+    };
+    checkAuth();
+  }, [supabase, router]);
 
   async function handleAdminLogin(e: React.FormEvent) {
     e.preventDefault();
