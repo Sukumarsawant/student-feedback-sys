@@ -1,14 +1,11 @@
 [build]
-  command = "npm install && npm run build"
+  command = "npm ci && npm run build"
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "20"
-  NPM_FLAGS = "--legacy-peer-deps"
+  NODE_VERSION = "20.11.0"
+  NPM_VERSION = "10.2.4"
 
 # Next.js specific configuration
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-[functions]
-  node_bundler = "esbuild"
