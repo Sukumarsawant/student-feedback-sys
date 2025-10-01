@@ -2,12 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import StepsSlider from "@/components/StepsSlider";
-
-const roleRouteMap: Record<string, string> = {
-  admin: "/admin",
-  teacher: "/teacher",
-  student: "/student",
-};
+import IntroWrapper from "@/components/IntroWrapper";
 
 export default async function HomePage() {
   const supabase = await createSupabaseServerClient();
@@ -15,35 +10,25 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let profile: { role: string; full_name?: string } | null = null;
-  let dashboardHref = "/login";
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("role, full_name").eq("id", user.id).single()
+    : { data: null };
 
-  let profileRole: string | null = null;
+  const dashboardHref = profile
+    ? profile.role === "student"
+      ? "/student"
+      : profile.role === "teacher"
+        ? "/teacher"
+        : profile.role === "admin"
+          ? "/admin"
+          : "/"
+    : "/login";
 
-  if (user) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("role, full_name")
-      .eq("id", user.id)
-      .single();
-    profile = data;
-    profileRole = data?.role ?? user.user_metadata?.role ?? null;
-    dashboardHref = roleRouteMap[(profileRole ?? "").toLowerCase()] ?? "/student";
-  }
-
-  const exploreHref = !user
-    ? "/login"
-    : (profileRole ?? "").toLowerCase() === "student"
-    ? "/feedback"
-    : "/analytics";
-
-  const exploreLabel = !user
-    ? "Explore feedback forms"
-    : (profileRole ?? "").toLowerCase() === "student"
-    ? "Explore feedback forms"
-    : "Open analytics";
+  const exploreHref = user ? "/reviews" : "/team";
+  const exploreLabel = user ? "Explore Reviews" : "Meet the Team";
 
   return (
+    <IntroWrapper>
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-16">
       {/* Hero Section with Classroom Background */}
       <section className="relative overflow-hidden rounded-[44px] border border-[var(--brand-secondary)]/50 shadow-[0_40px_90px_-55px_rgba(26,20,41,0.45)] sm:px-12 sm:py-24 px-8 py-16">
@@ -277,6 +262,6 @@ export default async function HomePage() {
         </div>
       </section>
     </div>
+    </IntroWrapper>
   );
 }
-

@@ -295,9 +295,50 @@ export default async function ProfilePage() {
     }
   }
 
+  // Get available feedback forms for students
+  let availableForms: any[] = [];
+  let myResponses: any[] = [];
+  
+  if (role === "student") {
+    const { data: forms } = await supabase
+      .from('feedback_forms')
+      .select(`
+        *,
+        courses (
+          course_name,
+          course_code
+        )
+      `)
+      .eq('is_active', true)
+      .lte('start_date', new Date().toISOString())
+      .gte('end_date', new Date().toISOString())
+      .order('created_at', { ascending: false });
+
+    availableForms = forms ?? [];
+
+    // Get student's submitted responses
+    const { data: responses } = await supabase
+      .from('feedback_responses')
+      .select(`
+        *,
+        courses (
+          course_name,
+          course_code
+        ),
+        feedback_forms (
+          title
+        )
+      `)
+      .eq('student_id', user.id)
+      .order('submitted_at', { ascending: false });
+
+    myResponses = responses ?? [];
+  }
+
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12 animate-fade-in">
-      <section className="glass-card relative overflow-hidden rounded-3xl p-10 shadow-2xl hover-lift">
+      {/* Quick Profile Summary */}
+      <section className="glass-card relative overflow-hidden rounded-3xl p-8 shadow-2xl hover-lift">
         <div className="absolute -left-16 top-12 h-40 w-40 rounded-full bg-[var(--brand-primary)]/10 blur-3xl animate-pulse-glow" />
         <div className="absolute -right-10 bottom-12 h-44 w-44 rounded-full bg-[var(--brand-accent)]/10 blur-3xl animate-pulse-glow" style={{animationDelay: '1s'}} />
 
@@ -310,20 +351,16 @@ export default async function ProfilePage() {
               {baseProfile.full_name || "Your profile"}
             </h1>
             <p className="max-w-xl text-sm text-[var(--brand-dark)]/70">
-              Manage your profile information and keep your academic details up to date.
+              {role === 'student' 
+                ? 'Submit feedback forms and track your responses' 
+                : 'Manage your profile information and view feedback analytics'}
             </p>
 
-            <dl className="mt-8 grid gap-6 text-sm sm:grid-cols-2">
+            <dl className="mt-8 grid gap-4 text-sm sm:grid-cols-3">
               <div className="glass-input p-4 rounded-xl">
                 <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Email</dt>
-                <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.email}</dd>
+                <dd className="mt-2 font-semibold text-[var(--brand-dark)] truncate">{baseProfile.email}</dd>
               </div>
-              {baseProfile.username && (
-                <div className="glass-input p-4 rounded-xl">
-                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Username</dt>
-                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.username}</dd>
-                </div>
-              )}
               <div className="glass-input p-4 rounded-xl">
                 <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Role</dt>
                 <dd className="mt-2">
@@ -338,36 +375,6 @@ export default async function ProfilePage() {
                   <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.department}</dd>
                 </div>
               )}
-              {baseProfile.roll_no && (
-                <div className="glass-input p-4 rounded-xl">
-                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Roll No.</dt>
-                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.roll_no}</dd>
-                </div>
-              )}
-              {baseProfile.enrollment_number && (
-                <div className="glass-input p-4 rounded-xl">
-                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Enrollment No.</dt>
-                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.enrollment_number}</dd>
-                </div>
-              )}
-              {baseProfile.division && (
-                <div className="glass-input p-4 rounded-xl">
-                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Division</dt>
-                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.division}</dd>
-                </div>
-              )}
-              {baseProfile.employee_id && (
-                <div className="glass-input p-4 rounded-xl">
-                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Employee ID</dt>
-                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.employee_id}</dd>
-                </div>
-              )}
-              {baseProfile.year && (
-                <div className="glass-input p-4 rounded-xl">
-                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Year</dt>
-                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">Year {baseProfile.year}</dd>
-                </div>
-              )}
             </dl>
           </div>
 
@@ -380,6 +387,128 @@ export default async function ProfilePage() {
           </div>
         </div>
       </section>
+
+      {/* Student-specific sections: Available Forms and My Responses */}
+      {role === "student" && (
+        <>
+          {/* Available Feedback Forms */}
+          <section className="glass-card rounded-3xl p-8 shadow-lg animate-slide-up">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-[var(--brand-dark)]">📝 Available Feedback Forms</h2>
+                <p className="mt-2 text-sm text-[var(--brand-dark)]/60">
+                  Submit feedback for your courses
+                </p>
+              </div>
+              <span className="badge text-lg px-4 py-2" data-tone="primary">
+                {availableForms.length} Active
+              </span>
+            </div>
+
+            {availableForms.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">📋</div>
+                <p className="text-lg font-semibold text-[var(--brand-dark)]/70">No active feedback forms</p>
+                <p className="text-sm text-[var(--brand-dark)]/50 mt-2">Check back later for new forms</p>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {availableForms.map((form: any) => (
+                  <a
+                    key={form.id}
+                    href={`/feedback?form=${form.id}`}
+                    className="glass-input rounded-2xl p-6 hover-lift transition-all hover:shadow-xl group"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg text-[var(--brand-dark)] group-hover:text-[var(--brand-primary)] transition-colors">
+                          {form.title || 'Untitled Form'}
+                        </h3>
+                        <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary)] mt-1">
+                          {form.courses?.course_code || 'General'}
+                        </p>
+                      </div>
+                      <span className="badge" data-tone="success">Active</span>
+                    </div>
+                    
+                    {form.description && (
+                      <p className="text-sm text-[var(--brand-dark)]/70 mb-4 line-clamp-2">
+                        {form.description}
+                      </p>
+                    )}
+
+                    <div className="flex items-center justify-between text-xs text-[var(--brand-dark)]/50">
+                      <span>📅 Ends: {new Date(form.end_date).toLocaleDateString()}</span>
+                      <span className="text-[var(--brand-primary)] font-semibold group-hover:underline">
+                        Submit Now →
+                      </span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* My Submitted Responses */}
+          <section className="glass-card rounded-3xl p-8 shadow-lg animate-slide-up animate-delay-100">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-[var(--brand-dark)]">✅ My Submitted Responses</h2>
+                <p className="mt-2 text-sm text-[var(--brand-dark)]/60">
+                  Your feedback submission history
+                </p>
+              </div>
+              <span className="badge text-lg px-4 py-2" data-tone="accent">
+                {myResponses.length} Total
+              </span>
+            </div>
+
+            {myResponses.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">✨</div>
+                <p className="text-lg font-semibold text-[var(--brand-dark)]/70">No submissions yet</p>
+                <p className="text-sm text-[var(--brand-dark)]/50 mt-2">Start by filling out an available form above</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {myResponses.map((response: any) => (
+                  <div
+                    key={response.id}
+                    className="glass-input rounded-2xl p-5 hover-lift transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="badge" data-tone="primary">
+                            {response.courses?.course_code || 'General'}
+                          </span>
+                          <h3 className="font-semibold text-[var(--brand-dark)]">
+                            {response.feedback_forms?.title || 'Feedback Form'}
+                          </h3>
+                        </div>
+                        <p className="text-sm text-[var(--brand-dark)]/70">
+                          {response.courses?.course_name || 'No course name'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 mb-1">
+                          Submitted
+                        </div>
+                        <div className="text-sm font-semibold text-[var(--brand-primary)]">
+                          {new Date(response.submitted_at).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-[var(--brand-dark)]/50">
+                          {new Date(response.submitted_at).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
 
       {/* Feedback statistics section */}
       <section className="glass-card rounded-3xl p-8 shadow-lg animate-slide-up animate-delay-100">

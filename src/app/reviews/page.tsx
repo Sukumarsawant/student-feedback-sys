@@ -1,3 +1,32 @@
+import { HoverEffect } from "@/components/ui/card-hover-effect";
+
+const reviews = [
+  {
+    title: "Aarav Singh - Student, 2nd Year",
+    description: "Best feedback system I've used. Quick, simple, and actually works! The interface is intuitive and I can submit my feedback in just a few clicks. ⭐⭐⭐⭐⭐",
+  },
+  {
+    title: "Dr. Meera Nair - Professor",
+    description: "Makes collecting student feedback so much easier. The analytics are super helpful and give me real insights into my teaching methods. ⭐⭐⭐⭐⭐",
+  },
+  {
+    title: "Rahul Verma - Student, 3rd Year",
+    description: "Clean design, easy to use. Way better than the old forms we used to fill. The anonymous option is a great feature! ⭐⭐⭐⭐",
+  },
+  {
+    title: "Prof. Anita Sharma - Teacher",
+    description: "Love the real-time dashboard. Helps me improve my teaching instantly. I can see trends and patterns in student feedback right away. ⭐⭐⭐⭐⭐",
+  },
+  {
+    title: "Priya Kapoor - Student, 1st Year",
+    description: "Finally, a feedback system that doesn't feel like a chore. The mobile experience is smooth and I can give feedback anytime. ⭐⭐⭐⭐⭐",
+  },
+  {
+    title: "Dr. Rajesh Kumar - Department Head",
+    description: "Excellent tool for tracking teaching quality across departments. The aggregated analytics help us make data-driven decisions. ⭐⭐⭐⭐⭐",
+  },
+];
+
 export default function ReviewsPage() {
   return (
     <div className="mx-auto max-w-7xl px-6 py-16 animate-fade-in">
@@ -10,57 +39,7 @@ export default function ReviewsPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Sample reviews */}
-        {[
-          {
-            name: "Aarav Singh",
-            role: "Student, 2nd Year",
-            review: "Best feedback system I've used. Quick, simple, and actually works!",
-            rating: 5
-          },
-          {
-            name: "Dr. Meera Nair",
-            role: "Professor",
-            review: "Makes collecting student feedback so much easier. The analytics are super helpful.",
-            rating: 5
-          },
-          {
-            name: "Rahul Verma",
-            role: "Student, 3rd Year",
-            review: "Clean design, easy to use. Way better than the old forms.",
-            rating: 4
-          },
-          {
-            name: "Prof. Anita Sharma",
-            role: "Teacher",
-            review: "Love the real-time dashboard. Helps me improve my teaching instantly.",
-            rating: 5
-          }
-        ].map((review, index) => (
-          <div key={index} className="glass-card rounded-2xl p-6 hover-lift">
-            <div className="flex gap-1 mb-3">
-              {[...Array(5)].map((_, i) => (
-                <span key={i} className={`text-xl ${i < review.rating ? 'text-yellow-500' : 'text-gray-300'}`}>
-                  ★
-                </span>
-              ))}
-            </div>
-            <p className="text-[var(--brand-dark)] text-base font-medium mb-4 leading-relaxed">
-              &ldquo;{review.review}&rdquo;
-            </p>
-            <div className="flex items-center gap-3 pt-4 border-t border-[var(--brand-dark)]/10">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-primary)]/15 text-lg font-bold text-[var(--brand-primary)]">
-                {review.name.charAt(0)}
-              </div>
-              <div>
-                <p className="font-bold text-[var(--brand-dark)]">{review.name}</p>
-                <p className="text-sm text-[var(--brand-dark)] font-medium">{review.role}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <HoverEffect items={reviews} />
     </div>
   );
 }

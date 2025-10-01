@@ -161,54 +161,81 @@ export default function FeedbackPage() {
 
   async function submitFeedback(e: React.FormEvent) {
     e.preventDefault();
+    console.log('🚀 Form submission started');
     setSubmitting(true);
     setError(null);
     setSuccess(false);
     
     try {
       if (!selectedTeacher) {
+        console.log('❌ No teacher selected');
         setError("Please choose a teacher before submitting your feedback.");
-        setSubmitting(false);
         return;
       }
 
-      const { data: sessionData } = await supabase.auth.getUser();
+      console.log('📝 Selected teacher:', selectedTeacher);
+      console.log('🔐 Getting user session...');
+
+      const { data: sessionData, error: authError } = await supabase.auth.getUser();
+      
+      console.log('🔐 Session data received:', sessionData ? 'User found' : 'No user');
+      
+      if (authError) {
+        console.error('❌ Auth error:', authError);
+        setError('Authentication error. Please try logging in again.');
+        return;
+      }
+
       const user = sessionData.user;
       if (!user) {
+        console.log('❌ No user found, redirecting to login');
         router.replace("/login");
         return;
       }
+
+      console.log('✅ User authenticated:', user.id);
+
+      const requestBody = {
+        courseCode: selectedTeacher.courseCode,
+        courseName: selectedTeacher.courseName,
+        instructorName: selectedTeacher.instructorName,
+        rating: form.rating,
+        comments: form.comments || null,
+        isAnonymous: form.is_anonymous,
+      };
+
+      console.log('📤 Sending feedback:', requestBody);
 
       const response = await fetch("/api/feedback/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          courseCode: selectedTeacher.courseCode,
-          courseName: selectedTeacher.courseName,
-          instructorName: selectedTeacher.instructorName,
-          rating: form.rating,
-          comments: form.comments || null,
-          isAnonymous: form.is_anonymous,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('📥 Response status:', response.status);
+
       const payload = await response.json();
+      console.log('📥 Response payload:', payload);
 
       if (!response.ok) {
         const message = typeof payload?.error === "string" ? payload.error : "Failed to submit feedback.";
+        console.log('❌ Submission failed:', message);
         setError(message);
         return;
       }
 
+      console.log('✅ Feedback submitted successfully!');
       setSuccess(true);
       setForm({ rating: 5, comments: "", is_anonymous: false });
-  setSelectedTeacherId(teacherOptions[0]?.id ?? "");
+      setSelectedTeacherId(teacherOptions[0]?.id ?? "");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      console.error('❌ Error during submission:', error);
       setError(errorMessage);
     } finally {
+      console.log('🏁 Form submission complete, resetting button');
       setSubmitting(false);
     }
   }

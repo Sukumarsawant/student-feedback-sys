@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -59,7 +59,7 @@ function resolveProfileRecord(profile: SupabaseProfileRow | null, user: User | n
 }
 
 export default function Navbar() {
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile>(null);
@@ -83,23 +83,48 @@ export default function Navbar() {
   }, [showLoginDropdown]);
 
   useEffect(() => {
+    let isMounted = true;
+
     // Get initial user
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      
-      if (user) {
-        // Get user profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        setProfile(resolveProfileRecord(profile as SupabaseProfileRow | null, user));
-      } else {
-        setProfile(null);
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (!isMounted) return;
+        
+        if (userError) {
+          console.error('Error fetching user:', userError);
+          setLoading(false);
+          return;
+        }
+
+        setUser(user);
+        
+        if (user) {
+          // Get only necessary profile fields for navbar
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role, full_name, avatar_url')
+            .eq('id', user.id)
+            .maybeSingle();
+          
+          if (!isMounted) return;
+          
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+          }
+          
+          setProfile(resolveProfileRecord(profile as SupabaseProfileRow | null, user));
+        } else {
+          setProfile(null);
+        }
+      } catch (error) {
+        console.error('Unexpected error in getUser:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
 
     getUser();
@@ -107,23 +132,34 @@ export default function Navbar() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!isMounted) return;
+        
         setUser(session?.user || null);
         
         if (session?.user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('*')
+            .select('role, full_name, avatar_url')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
+          
+          if (!isMounted) return;
+          
           setProfile(resolveProfileRecord(profile as SupabaseProfileRow | null, session.user));
         } else {
           setProfile(null);
         }
-        setLoading(false);
+        
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [supabase]);
 
   const handleLogout = async () => {
@@ -162,62 +198,65 @@ export default function Navbar() {
       isScrolled ? 'top-2 max-w-2xl' : 'top-6 max-w-6xl'
     }`}>
       <div className={`glass-navbar-enhanced flex items-center rounded-full transition-all duration-500 ease-out ${
-        isScrolled ? 'px-5 py-2.5 justify-between' : 'px-8 py-4 justify-between'
+        isScrolled ? 'px-5 py-2.5 justify-between nav-scrolled' : 'px-8 py-4 justify-between'
       }`}>
         
         {/* Left Navigation Icons */}
         <div className={`flex items-center transition-all duration-500 ease-out ${
-          isScrolled ? 'gap-1' : 'gap-2.5'
+          isScrolled ? 'gap-3' : 'gap-4'
         }`}>
           {/* Home Icon */}
           <Link 
             href="/" 
-            className={`group relative rounded-xl transition-all duration-500 ease-out ${
-              pathname === "/" 
-                ? "bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/25" 
-                : "hover:bg-gray-100"
-            } ${isScrolled ? 'p-2' : 'p-3'}`}
+            className="nav-icon-wrapper"
+            style={{
+              '--nav-color-1': '#a955ff',
+              '--nav-color-2': '#ea51ff'
+            } as React.CSSProperties}
             title="Home"
           >
             <Home 
-              size={isScrolled ? 17 : 19} 
+              size={isScrolled ? 16 : 18} 
               strokeWidth={2.5} 
-              className={`nav-icon ${pathname === "/" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
+              className="nav-icon"
             />
+            <span className="nav-icon-title">Home</span>
           </Link>
           
           {/* Team Icon */}
           <Link 
             href="/team" 
-            className={`group relative rounded-xl transition-all duration-500 ease-out ${
-              pathname === "/team" 
-                ? "bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/25" 
-                : "hover:bg-gray-100"
-            } ${isScrolled ? 'p-2' : 'p-3'}`}
+            className="nav-icon-wrapper"
+            style={{
+              '--nav-color-1': '#56CCF2',
+              '--nav-color-2': '#2F80ED'
+            } as React.CSSProperties}
             title="Team"
           >
             <Users 
-              size={isScrolled ? 17 : 19} 
+              size={isScrolled ? 16 : 18} 
               strokeWidth={2.5} 
-              className={`nav-icon ${pathname === "/team" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
+              className="nav-icon"
             />
+            <span className="nav-icon-title">Team</span>
           </Link>
           
           {/* Reviews Icon */}
           <Link 
             href="/reviews" 
-            className={`group relative rounded-xl transition-all duration-500 ease-out ${
-              pathname === "/reviews" 
-                ? "bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/25" 
-                : "hover:bg-gray-100"
-            } ${isScrolled ? 'p-2' : 'p-3'}`}
+            className="nav-icon-wrapper"
+            style={{
+              '--nav-color-1': '#FF9966',
+              '--nav-color-2': '#FF5E62'
+            } as React.CSSProperties}
             title="Reviews"
           >
             <Star 
-              size={isScrolled ? 17 : 19} 
+              size={isScrolled ? 16 : 18} 
               strokeWidth={2.5} 
-              className={`nav-icon ${pathname === "/reviews" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
+              className="nav-icon"
             />
+            <span className="nav-icon-title">Reviews</span>
           </Link>
         </div>
 
@@ -239,24 +278,47 @@ export default function Navbar() {
 
         {/* Right Navigation */}
         <div className={`flex items-center transition-all duration-500 ease-out ${
-          isScrolled ? 'gap-1 ml-auto' : 'gap-2.5 ml-auto'
+          isScrolled ? 'gap-3 ml-auto' : 'gap-4 ml-auto'
         }`}>
-          {/* Dashboard/Forms Icon */}
-          <Link
-            href={user ? (profile?.role === "student" ? "/feedback" : "/analytics") : "/login"}
-            className={`group relative rounded-xl transition-all duration-500 ease-out ${
-              pathname === "/feedback" || pathname === "/analytics" 
-                ? "bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/25" 
-                : "hover:bg-gray-100"
-            } ${isScrolled ? 'p-2' : 'p-3'}`}
-            title="Dashboard"
-          >
-            <FileText 
-              size={isScrolled ? 17 : 19} 
-              strokeWidth={2.5} 
-              className={`nav-icon ${pathname === "/feedback" || pathname === "/analytics" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
-            />
-          </Link>
+          {/* Student Dashboard Icon - Only visible for students */}
+          {user && profile?.role === "student" && (
+            <Link
+              href="/student"
+              className="nav-icon-wrapper"
+              style={{
+                '--nav-color-1': '#80FF72',
+                '--nav-color-2': '#7EE8FA'
+              } as React.CSSProperties}
+              title="Student Dashboard"
+            >
+              <FileText 
+                size={isScrolled ? 16 : 18} 
+                strokeWidth={2.5} 
+                className="nav-icon"
+              />
+              <span className="nav-icon-title">Student</span>
+            </Link>
+          )}
+          
+          {/* Analytics/Forms Icon - For teachers and admins */}
+          {user && profile?.role !== "student" && (
+            <Link
+              href={profile?.role === "teacher" || profile?.role === "admin" ? "/analytics" : "/feedback"}
+              className="nav-icon-wrapper"
+              style={{
+                '--nav-color-1': '#ffa9c6',
+                '--nav-color-2': '#f434e2'
+              } as React.CSSProperties}
+              title="Dashboard"
+            >
+              <FileText 
+                size={isScrolled ? 16 : 18} 
+                strokeWidth={2.5} 
+                className="nav-icon"
+              />
+              <span className="nav-icon-title">Dashboard</span>
+            </Link>
+          )}
         </div>
 
         {/* Profile or Login Section */}

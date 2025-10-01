@@ -327,7 +327,7 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
 
         <div className="space-y-4 rounded-3xl border border-[var(--brand-secondary)]/70 bg-white/95 p-7 shadow-[0_25px_70px_-45px_rgba(28,44,99,0.5)]">
           <h2 className="text-xl font-semibold text-slate-900">Filters</h2>
-          <p className="text-sm text-slate-500">Focus on a specific course to isolate responses.</p>
+          <p className="text-sm text-slate-500"><font color="black">Focus on a specific course to isolate responses.</font></p>
           <div className="space-y-2 text-sm">
             <a
               href="/analytics"
@@ -337,10 +337,11 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
                   : "border-slate-200 text-slate-600 hover:border-[var(--brand-primary)]/40 hover:text-[var(--brand-primary)]"
               }`}
             >
-              All courses
+             <font color="black"> All courses</font>
             </a>
             {courseCards.map((course) => (
               <a
+              
                 key={course.code}
                 href={`/analytics?course=${encodeURIComponent(course.code)}`}
                 className={`block rounded-2xl border px-4 py-2 transition ${
@@ -349,7 +350,7 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
                     : "border-slate-200 text-slate-600 hover:border-[var(--brand-primary)]/40 hover:text-[var(--brand-primary)]"
                 }`}
               >
-                {course.name} · {course.responses} responses
+                <font color="black">{course.name} · {course.responses} responses</font>
               </a>
             ))}
           </div>

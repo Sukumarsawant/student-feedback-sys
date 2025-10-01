@@ -9,21 +9,21 @@ const steps = [
     step: "1",
     title: "Sign In",
     description: "Login with your VIT email. Students, teachers, and admins all have their own portals.",
-    icon: "👤",
+    image: "/images/steps/step1.png",
     color: "from-blue-500 to-indigo-600"
   },
   {
     step: "2",
     title: "Create or Fill Forms",
     description: "Teachers launch feedback forms. Students receive instant notifications and submit responses.",
-    icon: "📝",
+    image: "/images/steps/step2.png",
     color: "from-purple-500 to-pink-600"
   },
   {
     step: "3",
     title: "View Analytics",
     description: "Teachers get live dashboards with response rates, sentiment analysis, and actionable insights.",
-    icon: "📊",
+    image: "/images/steps/step3.png",
     color: "from-green-500 to-emerald-600"
   }
 ];
@@ -32,7 +32,7 @@ export default function StepsSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Auto-play functionality
+  // Auto-play functionality - pauses when user interacts
   useEffect(() => {
     if (!isAutoPlaying) return;
 
@@ -45,21 +45,21 @@ export default function StepsSlider() {
 
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
-    setIsAutoPlaying(false); // Stop auto-play when user manually navigates
+    setIsAutoPlaying(false); // Stop auto-play when user clicks dot
   };
 
   const goToPrevious = () => {
     setCurrentIndex((prev) => (prev - 1 + steps.length) % steps.length);
-    setIsAutoPlaying(false);
+    setIsAutoPlaying(false); // Stop auto-play when user clicks arrow
   };
 
   const goToNext = () => {
     setCurrentIndex((prev) => (prev + 1) % steps.length);
-    setIsAutoPlaying(false);
+    setIsAutoPlaying(false); // Stop auto-play when user clicks arrow
   };
 
   return (
-    <div className="relative max-w-4xl mx-auto">
+    <div className="relative max-w-5xl mx-auto">
       {/* Slider Container */}
       <div className="relative overflow-hidden rounded-3xl">
         {/* Slides */}
@@ -70,40 +70,44 @@ export default function StepsSlider() {
           {steps.map((item, index) => (
             <div 
               key={index}
-              className="min-w-full"
+              className="min-w-full flex items-center justify-center"
             >
-              <div className="glass-card rounded-3xl p-12 border-2 border-white relative overflow-hidden mx-2">
+              <div className="glass-card rounded-3xl p-8 border-2 border-white relative overflow-hidden w-full max-w-4xl mx-auto">
                 {/* Background gradient */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-5`} />
                 
                 {/* Content */}
-                <div className="relative space-y-6 text-center">
-                  {/* Logo and Step Number */}
-                  <div className="flex flex-col items-center justify-center gap-6">
-                    <div className="flex items-center justify-center rounded-3xl border border-white/40 bg-white/95 backdrop-blur-md p-6 shadow-2xl">
+                <div className="relative space-y-6">
+                  {/* Step Image */}
+                  <div className="flex items-center justify-center">
+                    <div className="relative w-full aspect-[16/10] max-w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white/50 bg-white">
                       <Image
-                        src="/images/logo/Gemini_Generated_Image_hm72xfhm72xfhm72-removebg-preview.png"
-                        alt="VIT Logo"
-                        width={400}
-                        height={100}
-                        className="h-auto w-full max-w-[280px] object-contain"
-                        priority
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1000px"
+                        priority={index === 0}
                       />
-                    </div>
-                    <div className={`h-16 w-16 flex items-center justify-center rounded-full bg-gradient-to-br ${item.color} text-white font-bold text-2xl shadow-lg`}>
-                      {item.step}
                     </div>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="text-3xl font-bold text-[var(--brand-dark)]">
-                    {item.title}
-                  </h3>
+                  {/* Title and Description */}
+                  <div className="text-center space-y-3 px-4">
+                    <div className="flex items-center justify-center gap-3">
+                      <div className={`h-12 w-12 flex-shrink-0 flex items-center justify-center rounded-full bg-gradient-to-br ${item.color} text-white font-bold text-xl shadow-lg`}>
+                        {item.step}
+                      </div>
+                      <h3 className="text-2xl font-bold text-[var(--brand-dark)]">
+                        {item.title}
+                      </h3>
+                    </div>
 
-                  {/* Description */}
-                  <p className="text-lg font-medium text-[var(--brand-dark)] leading-relaxed max-w-2xl mx-auto">
-                    {item.description}
-                  </p>
+                    {/* Description */}
+                    <p className="text-base font-medium text-[var(--brand-dark)]/80 leading-relaxed max-w-2xl mx-auto">
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -142,16 +146,6 @@ export default function StepsSlider() {
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
-      </div>
-
-      {/* Auto-play indicator */}
-      <div className="text-center mt-4">
-        <button
-          onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-          className="text-xs font-medium text-gray-500 hover:text-[var(--brand-primary)] transition-colors"
-        >
-          {isAutoPlaying ? "⏸ Pause" : "▶ Play"} Auto-slide
-        </button>
       </div>
     </div>
   );
