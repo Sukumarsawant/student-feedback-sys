@@ -95,12 +95,12 @@ export default async function StudentPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
-            <div className="rounded-2xl border border-blue-200/60 bg-gradient-to-br from-blue-50 to-indigo-50 px-4 py-3 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.3em] text-blue-700 font-semibold">Active feedback</p>
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Active feedback</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{availableForms.length}</p>
             </div>
-            <div className="rounded-2xl border border-purple-200/60 bg-gradient-to-br from-purple-50 to-pink-50 px-4 py-3 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.3em] text-purple-700 font-semibold">Department</p>
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Department</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">{profile.department ?? "—"}</p>
             </div>
           </div>
@@ -116,28 +116,16 @@ export default async function StudentPage() {
 
         {availableForms.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {availableForms.map((form, index) => {
-              // Harmonious color palette - soft pastels that work well together
-              const colorSchemes = [
-                { border: 'border-blue-200', bg: 'bg-gradient-to-br from-blue-50/80 to-cyan-50/80', hover: 'hover:border-blue-300', accent: 'text-blue-600', badgeBg: 'bg-blue-100', badgeText: 'text-blue-700' },
-                { border: 'border-purple-200', bg: 'bg-gradient-to-br from-purple-50/80 to-violet-50/80', hover: 'hover:border-purple-300', accent: 'text-purple-600', badgeBg: 'bg-purple-100', badgeText: 'text-purple-700' },
-                { border: 'border-teal-200', bg: 'bg-gradient-to-br from-teal-50/80 to-emerald-50/80', hover: 'hover:border-teal-300', accent: 'text-teal-600', badgeBg: 'bg-teal-100', badgeText: 'text-teal-700' },
-                { border: 'border-rose-200', bg: 'bg-gradient-to-br from-rose-50/80 to-pink-50/80', hover: 'hover:border-rose-300', accent: 'text-rose-600', badgeBg: 'bg-rose-100', badgeText: 'text-rose-700' },
-                { border: 'border-amber-200', bg: 'bg-gradient-to-br from-amber-50/80 to-orange-50/80', hover: 'hover:border-amber-300', accent: 'text-amber-600', badgeBg: 'bg-amber-100', badgeText: 'text-amber-700' },
-                { border: 'border-indigo-200', bg: 'bg-gradient-to-br from-indigo-50/80 to-blue-50/80', hover: 'hover:border-indigo-300', accent: 'text-indigo-600', badgeBg: 'bg-indigo-100', badgeText: 'text-indigo-700' },
-              ];
-              const colorScheme = colorSchemes[index % colorSchemes.length];
-              
-              return (
+            {availableForms.map((form) => (
               <article
                 key={form.id}
-                className={`h-full rounded-2xl border ${colorScheme.border} ${colorScheme.bg} backdrop-blur-sm p-6 shadow-md transition-all duration-300 hover:-translate-y-2 ${colorScheme.hover} hover:shadow-xl`}
+                className="h-full rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm transition hover:-translate-y-1 hover:border-fuchsia-200 hover:shadow-lg"
               >
                 <header>
-                  <h3 className="text-lg font-bold text-slate-900">{form.courses?.course_name}</h3>
-                  <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${colorScheme.badgeBg} ${colorScheme.badgeText}`}>
+                  <h3 className="text-lg font-semibold text-slate-900">{form.courses?.course_name}</h3>
+                  <p className="mt-1 text-sm text-slate-500">
                     {form.courses?.course_code}
-                  </span>
+                  </p>
                 </header>
                 <p className="mt-4 text-sm text-slate-600 line-clamp-3">{form.description}</p>
                 <footer className="mt-6 flex flex-wrap items-center justify-end gap-3 text-sm">
@@ -157,7 +145,7 @@ export default async function StudentPage() {
                   </a>
                 </footer>
               </article>
-            )})}
+            ))}
           </div>
         ) : (
           <div className="rounded-3xl border border-dashed border-slate-300 bg-white/80 p-10 text-center">
@@ -178,31 +166,22 @@ export default async function StudentPage() {
       <section className="space-y-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-2xl font-semibold text-slate-900">My submitted responses</h2>
-          <span className="inline-flex rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 border border-emerald-200 px-3 py-1 text-sm font-semibold text-emerald-700">
+          <span className="inline-flex rounded-full bg-fuchsia-100 px-3 py-1 text-sm font-semibold text-fuchsia-700">
             {myResponses.length} Total
           </span>
         </div>
 
         {myResponses.length > 0 ? (
           <div className="space-y-3">
-            {myResponses.map((response, index) => {
-              // Alternate between warm gradient colors for submitted responses
-              const responseColors = [
-                { bg: 'bg-gradient-to-r from-emerald-50 to-teal-50', border: 'border-emerald-200', badge: 'bg-emerald-100 text-emerald-700', accent: 'text-emerald-600' },
-                { bg: 'bg-gradient-to-r from-violet-50 to-purple-50', border: 'border-violet-200', badge: 'bg-violet-100 text-violet-700', accent: 'text-violet-600' },
-                { bg: 'bg-gradient-to-r from-sky-50 to-blue-50', border: 'border-sky-200', badge: 'bg-sky-100 text-sky-700', accent: 'text-sky-600' },
-              ];
-              const colorScheme = responseColors[index % responseColors.length];
-              
-              return (
+            {myResponses.map((response) => (
               <article
                 key={response.id}
-                className={`rounded-2xl border ${colorScheme.border} ${colorScheme.bg} p-5 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.01]`}
+                className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm transition hover:shadow-md"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${colorScheme.badge}`}>
+                      <span className="inline-flex rounded-full bg-fuchsia-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-fuchsia-700">
                         {response.courses?.course_code || 'General'}
                       </span>
                       <h3 className="text-lg font-semibold text-slate-900">
@@ -219,7 +198,7 @@ export default async function StudentPage() {
                     <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">
                       Submitted
                     </div>
-                    <div className={`text-sm font-semibold ${colorScheme.accent}`}>
+                    <div className="text-sm font-semibold text-fuchsia-600">
                       {new Date(response.submitted_at).toLocaleDateString('en-US', { 
                         month: 'short', 
                         day: 'numeric', 
@@ -235,7 +214,7 @@ export default async function StudentPage() {
                   </div>
                 </div>
               </article>
-            )})}
+            ))}
           </div>
         ) : (
           <div className="rounded-3xl border border-dashed border-slate-300 bg-white/80 p-10 text-center">

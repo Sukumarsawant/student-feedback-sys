@@ -284,12 +284,12 @@ export default function FeedbackPage() {
             </p>
           </div>
           <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-            <div className="rounded-2xl border border-amber-200/60 bg-gradient-to-br from-amber-50 to-yellow-50 px-4 py-3 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.3em] text-amber-700 font-semibold">Your rating</p>
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Your rating</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">{form.rating}</p>
             </div>
-            <div className="rounded-2xl border border-indigo-200/60 bg-gradient-to-br from-indigo-50 to-blue-50 px-4 py-3 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.3em] text-indigo-700 font-semibold">Courses</p>
+            <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Courses</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">{loadingOptions ? "—" : teacherOptions.length}</p>
             </div>
           </div>

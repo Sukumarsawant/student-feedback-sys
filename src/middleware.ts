@@ -25,8 +25,13 @@ export async function middleware(req: NextRequest) {
   // Auth pages - redirect if already logged in
   if (pathname.startsWith('/login') || pathname.startsWith('/admin-login')) {
     if (session?.user) {
-      // Use cached role from session metadata to avoid DB query
-      const userRole = (session.user.user_metadata?.role || 'student').toString().toLowerCase();
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+      
+      const userRole = (profile?.role || session.user.user_metadata?.role || 'student').toString().toLowerCase();
       
       if (userRole === 'admin') {
         return NextResponse.redirect(new URL('/admin', req.url));

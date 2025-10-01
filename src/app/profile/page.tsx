@@ -3,12 +3,9 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import AvatarUploader from "@/components/profile/AvatarUploader";
 import { createClient } from "@supabase/supabase-js";
 
-// Force dynamic rendering with NO caching to avoid stale data
+// Force dynamic rendering and disable caching
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-// Increase max duration for Netlify (default is 10s, we set to 30s)
-export const maxDuration = 30;
 
 interface BaseProfile {
   id: string;
@@ -58,13 +55,8 @@ interface FeedbackResponse {
   course_id: string | null;
   feedback_forms?: {
     title: string;
-  }[] | {
-    title: string;
   } | null;
   courses?: {
-    course_code: string | null;
-    course_name: string | null;
-  }[] | {
     course_code: string | null;
     course_name: string | null;
   } | null;
@@ -201,39 +193,130 @@ export default async function ProfilePage() {
   }
 
   if (role === "teacher" || role === "admin") {
-    // SIMPLIFIED: Just get basic counts, no complex nested queries
-    try {
-      // Simple count of feedback received
-      const { count: receivedCount } = await supabase
-        .from("feedback_responses")
-        .select("*", { count: 'exact', head: true })
-        .eq("teacher_id", user.id);
+    const { data: assignmentsData } = await supabase
+      .from("course_assignments")
+      .select("id, courses(course_code, course_name)")
+      .eq("teacher_id", user.id)
+      .returns<AssignmentRow[]>();
 
-      feedbackSnapshot.totalReceived = receivedCount ?? 0;
+    const assignments: Assignment[] = (assignmentsData ?? []).map((assignment) => {
+      const course = Array.isArray(assignment.courses)
+        ? assignment.courses[0] ?? null
+        : assignment.courses ?? null;
 
-      // Get simple average rating (no nested queries)
-      if (receivedCount && receivedCount > 0) {
-        const { data: ratings } = await supabase
-          .from("feedback_answers")
-          .select("answer_rating, response:feedback_responses!inner(teacher_id)")
-          .eq("response.teacher_id", user.id)
-          .not("answer_rating", "is", null)
-          .limit(100);
+      return {
+        id: assignment.id as string,
+        course: course
+          ? {
+              course_code: course.course_code ?? null,
+              course_name: course.course_name ?? null,
+            }
+          : null,
+      } satisfies Assignment;
+    });
 
-        if (ratings && ratings.length > 0) {
-          const validRatings = ratings
-            .map(r => r.answer_rating)
-            .filter((r): r is number => typeof r === 'number' && !isNaN(r));
-          
-          if (validRatings.length > 0) {
-            const sum = validRatings.reduce((a, b) => a + b, 0);
-            feedbackSnapshot.averageRating = Number((sum / validRatings.length).toFixed(2));
-          }
-        }
+    const courseCodes = assignments
+      .map((assignment) => assignment.course?.course_code)
+      .filter((code): code is string => !!code);
+    const courseCodeSet = new Set(courseCodes);
+
+    let responsesQuery = supabaseAdmin
+      .from("feedback_responses")
+      .select(
+        `id,
+         course_id,
+         submitted_at,
+         courses ( course_code, course_name ),
+         answers:feedback_answers (
+           answer_rating,
+           answer_text,
+           question:feedback_questions ( question_type )
+         )`
+      )
+      .order("submitted_at", { ascending: false });
+
+    if (role === "teacher") {
+      responsesQuery = responsesQuery.eq("teacher_id", user.id);
+    }
+
+    const { data: responseRows } = await responsesQuery.returns<ResponseRow[]>();
+
+    const filteredRows = (responseRows ?? []).filter((row) => {
+      if (!courseCodeSet.size) {
+        return true;
       }
-    } catch (err) {
-      console.error('Error fetching teacher stats:', err);
-      // Continue with defaults
+      const code = row.courses?.course_code ?? null;
+      return code ? courseCodeSet.has(code) : false;
+    });
+
+    const normalizedResponses = filteredRows.map((row) => {
+      const ratingAnswer = row.answers?.find((answer) => typeof answer.answer_rating === "number" && !Number.isNaN(answer.answer_rating));
+      const commentAnswer = row.answers?.find((answer) => typeof answer.answer_text === "string" && answer.answer_text.trim().length > 0);
+
+      return {
+        id: row.id,
+        courseCode: row.courses?.course_code ?? null,
+        courseName: row.courses?.course_name ?? null,
+        submittedAt: row.submitted_at,
+        rating: ratingAnswer?.answer_rating ?? null,
+        comment: commentAnswer?.answer_text ?? null,
+      };
+    });
+
+    if (normalizedResponses.length > 0) {
+      const ratingTotals = new Map<number, number>();
+      const courseTotals = new Map<
+        string,
+        { courseName: string | null; responses: number; ratingSum: number }
+      >();
+      let ratingSum = 0;
+
+      normalizedResponses.forEach((row) => {
+        if (typeof row.rating === "number" && !Number.isNaN(row.rating)) {
+          ratingSum += row.rating;
+          ratingTotals.set(row.rating, (ratingTotals.get(row.rating) ?? 0) + 1);
+        }
+
+        if (row.comment) {
+          feedbackSnapshot.recentComments.push({
+            id: row.id,
+            comment: row.comment,
+            courseCode: row.courseCode,
+            createdAt: row.submittedAt,
+            rating: row.rating ?? 0,
+          });
+        }
+
+        const code = row.courseCode ?? "Unassigned";
+        const existing = courseTotals.get(code) ?? {
+          courseName:
+            row.courseName ?? assignments.find((assignment) => assignment.course?.course_code === code)?.course?.course_name ?? null,
+          responses: 0,
+          ratingSum: 0,
+        };
+
+        existing.responses += 1;
+        if (typeof row.rating === "number" && !Number.isNaN(row.rating)) {
+          existing.ratingSum += row.rating;
+        }
+        courseTotals.set(code, existing);
+      });
+
+      feedbackSnapshot.totalReceived = normalizedResponses.length;
+      feedbackSnapshot.averageRating = normalizedResponses.length
+        ? Number((ratingSum / normalizedResponses.length).toFixed(2))
+        : null;
+      feedbackSnapshot.ratingBreakdown = feedbackSnapshot.ratingBreakdown.map((entry) => ({
+        rating: entry.rating,
+        count: ratingTotals.get(entry.rating) ?? 0,
+      }));
+      feedbackSnapshot.recentComments = feedbackSnapshot.recentComments.slice(0, 6);
+      feedbackSnapshot.courseSummaries = Array.from(courseTotals.entries()).map(([code, info]) => ({
+        courseCode: code,
+        courseName: info.courseName,
+        responses: info.responses,
+        averageRating: info.responses ? Number((info.ratingSum / info.responses).toFixed(2)) : null,
+      }));
     }
   }
 
@@ -254,18 +337,15 @@ export default async function ProfilePage() {
       .eq('is_active', true)
       .lte('start_date', new Date().toISOString())
       .gte('end_date', new Date().toISOString())
-      .order('created_at', { ascending: false })
-      .limit(20); // OPTIMIZATION: Limit active forms
+      .order('created_at', { ascending: false });
 
     availableForms = forms ?? [];
 
-    // Get student's submitted responses (last 50 only)
+    // Get student's submitted responses
     const { data: responses } = await supabase
       .from('feedback_responses')
       .select(`
-        id,
-        submitted_at,
-        course_id,
+        *,
         courses (
           course_name,
           course_code
@@ -275,8 +355,7 @@ export default async function ProfilePage() {
         )
       `)
       .eq('student_id', user.id)
-      .order('submitted_at', { ascending: false })
-      .limit(50); // OPTIMIZATION: Only fetch last 50 responses
+      .order('submitted_at', { ascending: false });
 
     myResponses = responses ?? [];
   }
@@ -420,45 +499,39 @@ export default async function ProfilePage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {myResponses.map((response) => {
-                  // Normalize nested objects (Supabase returns arrays or single objects)
-                  const course = Array.isArray(response.courses) ? response.courses[0] : response.courses;
-                  const form = Array.isArray(response.feedback_forms) ? response.feedback_forms[0] : response.feedback_forms;
-                  
-                  return (
-                    <div
-                      key={response.id}
-                      className="glass-input rounded-2xl p-5 hover-lift transition-all"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="badge" data-tone="primary">
-                              {course?.course_code || 'General'}
-                            </span>
-                            <h3 className="font-semibold text-[var(--brand-dark)]">
-                              {form?.title?.replace('Mid-Semester Feedback - ', '').replace('Mid-Semester Feedback -', '') || course?.course_name || 'Feedback Form'}
-                            </h3>
-                          </div>
-                          <p className="text-sm text-[var(--brand-dark)]/70">
-                            {course?.course_name || 'No course name'}
-                          </p>
+                {myResponses.map((response) => (
+                  <div
+                    key={response.id}
+                    className="glass-input rounded-2xl p-5 hover-lift transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="badge" data-tone="primary">
+                            {response.courses?.course_code || 'General'}
+                          </span>
+                          <h3 className="font-semibold text-[var(--brand-dark)]">
+                            {response.feedback_forms?.title?.replace('Mid-Semester Feedback - ', '').replace('Mid-Semester Feedback -', '') || response.courses?.course_name || 'Feedback Form'}
+                          </h3>
                         </div>
-                        <div className="text-right">
-                          <div className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 mb-1">
-                            Submitted
-                          </div>
-                          <div className="text-sm font-semibold text-[var(--brand-primary)]">
-                            {new Date(response.submitted_at).toLocaleDateString()}
-                          </div>
-                          <div className="text-xs text-[var(--brand-dark)]/50">
-                            {new Date(response.submitted_at).toLocaleTimeString()}
-                          </div>
+                        <p className="text-sm text-[var(--brand-dark)]/70">
+                          {response.courses?.course_name || 'No course name'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 mb-1">
+                          Submitted
+                        </div>
+                        <div className="text-sm font-semibold text-[var(--brand-primary)]">
+                          {new Date(response.submitted_at).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-[var(--brand-dark)]/50">
+                          {new Date(response.submitted_at).toLocaleTimeString()}
                         </div>
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             )}
           </section>
@@ -525,36 +598,26 @@ export default async function ProfilePage() {
               <h3 className="text-xl font-bold text-[var(--brand-dark)]">Course Breakdown</h3>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              {feedbackSnapshot.courseSummaries.map((course, index) => {
-                const colors = [
-                  { border: 'border-blue-200', bg: 'bg-gradient-to-br from-blue-50 to-cyan-50', badge: 'bg-blue-100 text-blue-700' },
-                  { border: 'border-purple-200', bg: 'bg-gradient-to-br from-purple-50 to-pink-50', badge: 'bg-purple-100 text-purple-700' },
-                  { border: 'border-teal-200', bg: 'bg-gradient-to-br from-teal-50 to-emerald-50', badge: 'bg-teal-100 text-teal-700' },
-                  { border: 'border-rose-200', bg: 'bg-gradient-to-br from-rose-50 to-pink-50', badge: 'bg-rose-100 text-rose-700' },
-                  { border: 'border-amber-200', bg: 'bg-gradient-to-br from-amber-50 to-yellow-50', badge: 'bg-amber-100 text-amber-700' },
-                ];
-                const colorScheme = colors[index % colors.length];
-                return (
-                  <div key={course.courseCode} className={`rounded-2xl border ${colorScheme.border} ${colorScheme.bg} p-4 shadow-sm transition-all hover:shadow-md`}>
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">{course.courseName ?? course.courseCode}</p>
-                        <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{course.courseCode}</p>
-                      </div>
-                      <span className="badge" data-tone="primary">
-                        {course.averageRating ?? "—"}
-                      </span>
+              {feedbackSnapshot.courseSummaries.map((course) => (
+                <div key={course.courseCode} className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{course.courseName ?? course.courseCode}</p>
+                      <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{course.courseCode}</p>
                     </div>
-                    <div className="mt-4 h-2 rounded-full bg-slate-100">
-                      <div
-                        className="h-2 rounded-full bg-[var(--brand-primary)]"
-                        style={{ width: `${Math.min(100, course.averageRating ? (course.averageRating / 5) * 100 : 0)}%` }}
-                      />
-                    </div>
-                    <p className="mt-3 text-xs text-slate-500">Responses: {course.responses}</p>
+                    <span className="badge" data-tone="primary">
+                      {course.averageRating ?? "—"}
+                    </span>
                   </div>
-                );
-              })}
+                  <div className="mt-4 h-2 rounded-full bg-slate-100">
+                    <div
+                      className="h-2 rounded-full bg-[var(--brand-primary)]"
+                      style={{ width: `${Math.min(100, course.averageRating ? (course.averageRating / 5) * 100 : 0)}%` }}
+                    />
+                  </div>
+                  <p className="mt-3 text-xs text-slate-500">Responses: {course.responses}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}
