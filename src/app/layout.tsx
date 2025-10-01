@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Student Feedback System",
+  title: "FeebMEbacK - Feedback System",
   description: "DBMS project with Supabase",
 };
 
@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${geistSans.variable} ${geistMono.variable} text-slate-900 antialiased`}>
         <div className="flex min-h-screen flex-col">
           <Navbar />
-          <main className="flex-1 px-4 py-10 sm:px-6 lg:px-10">{children}</main>
+          <main className="flex-1 px-4 py-10 sm:px-6 lg:px-10 pt-24">{children}</main>
           <Footer />
         </div>
       </body>

@@ -1,0 +1,35 @@
+<svg width="560" height="360" viewBox="0 0 560 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="560" height="360" rx="56" fill="url(#paint0_radial_hero)"/>
+  <g filter="url(#filter0_f_hero)">
+    <path d="M96 268C132 212 224 228 312 216C400 204 452 188 476 148C500 108 472 60 412 40C352 20 256 28 184 64C112 100 64 164 56 220C48 276 60 324 96 268Z" fill="url(#paint1_linear_hero)"/>
+  </g>
+  <g filter="url(#filter1_f_hero)">
+    <path d="M360 280C280 280 230 252 230 208C230 164 284 138 356 126C428 114 524 116 540 166C556 216 468 280 360 280Z" fill="url(#paint2_radial_hero)"/>
+  </g>
+  <defs>
+    <filter id="filter0_f_hero" x="8" y="0" width="520" height="336" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="24" result="effect1_foregroundBlur_hero"/>
+    </filter>
+    <filter id="filter1_f_hero" x="182" y="74" width="410" height="254" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="32" result="effect1_foregroundBlur_hero"/>
+    </filter>
+    <radialGradient id="paint0_radial_hero" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(56 36) rotate(25) scale(612 404)">
+      <stop stop-color="#f6deac"/>
+      <stop offset="0.45" stop-color="#f9f6f1"/>
+      <stop offset="1" stop-color="#efe5cb"/>
+    </radialGradient>
+    <linearGradient id="paint1_linear_hero" x1="72" y1="236" x2="492" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3547d4" stop-opacity="0.75"/>
+      <stop offset="0.54" stop-color="#715bf0" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#e8604f" stop-opacity="0.65"/>
+    </linearGradient>
+    <radialGradient id="paint2_radial_hero" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(306 158) rotate(24) scale(208 136)">
+      <stop stop-color="#ffb37c" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#e8604f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>

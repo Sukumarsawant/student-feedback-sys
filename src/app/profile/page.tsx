@@ -3,15 +3,22 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import AvatarUploader from "@/components/profile/AvatarUploader";
 import { createClient } from "@supabase/supabase-js";
 
+// Force dynamic rendering and disable caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface BaseProfile {
   id: string;
   email: string;
+  username: string | null;
   full_name: string;
   role: string;
   department: string | null;
   enrollment_number: string | null;
+  roll_no: string | null;
   employee_id: string | null;
   year: number | null;
+  division: string | null;
   avatar_url: string | null;
 }
 
@@ -111,7 +118,7 @@ export default async function ProfilePage() {
   const { data: profileRow } = await supabase
     .from("profiles")
     .select(
-      "id, full_name, role, email, department, enrollment_number, employee_id, year, avatar_url"
+      "id, full_name, role, email, username, department, enrollment_number, roll_no, employee_id, year, division, avatar_url"
     )
     .eq("id", user.id)
     .single();
@@ -125,12 +132,15 @@ export default async function ProfilePage() {
   const baseProfile: BaseProfile = {
     id: user.id,
     email: profileRow?.email ?? user.email ?? "",
+    username: profileRow?.username ?? null,
     full_name: profileRow?.full_name ?? user.user_metadata?.full_name ?? user.email ?? "",
     role,
     department: profileRow?.department ?? null,
     enrollment_number: profileRow?.enrollment_number ?? null,
+    roll_no: profileRow?.roll_no ?? null,
     employee_id: profileRow?.employee_id ?? null,
     year: typeof profileRow?.year === "number" ? profileRow?.year : null,
+    division: profileRow?.division ?? null,
     avatar_url: profileRow?.avatar_url ?? (typeof user.user_metadata?.avatar_url === "string" ? user.user_metadata?.avatar_url : null),
   };
 
@@ -286,100 +296,130 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12">
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[var(--brand-primary)] via-[var(--brand-primary-dark)]/85 to-[#1a2255] p-10 text-white shadow-[0_35px_70px_-40px_rgba(32,41,102,0.8)]">
-        <div className="absolute -left-16 top-12 h-40 w-40 rounded-full bg-white/15 blur-3xl" />
-        <div className="absolute -right-10 bottom-12 h-44 w-44 rounded-full bg-[var(--brand-accent)]/25 blur-3xl" />
+    <div className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12 animate-fade-in">
+      <section className="glass-card relative overflow-hidden rounded-3xl p-10 shadow-2xl hover-lift">
+        <div className="absolute -left-16 top-12 h-40 w-40 rounded-full bg-[var(--brand-primary)]/10 blur-3xl animate-pulse-glow" />
+        <div className="absolute -right-10 bottom-12 h-44 w-44 rounded-full bg-[var(--brand-accent)]/10 blur-3xl animate-pulse-glow" style={{animationDelay: '1s'}} />
 
-        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-3">
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-white/80">
-              Profile center
+        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-4 flex-1">
+            <p className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-secondary)]/60 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.35em] text-[var(--brand-primary-dark)]">
+              📋 Profile Center
             </p>
-            <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">
+            <h1 className="text-4xl font-bold leading-tight text-[var(--brand-dark)]">
               {baseProfile.full_name || "Your profile"}
             </h1>
-            <p className="max-w-xl text-sm text-white/85">
-              Manage how you appear across the Student Feedback platform and keep your academic information up to date.
+            <p className="max-w-xl text-sm text-[var(--brand-dark)]/70">
+              Manage your profile information and keep your academic details up to date.
             </p>
-            <dl className="mt-6 grid gap-4 text-sm text-white/90 sm:grid-cols-2">
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-white/60">Email</dt>
-                <dd className="mt-1 font-medium">{baseProfile.email}</dd>
+
+            <dl className="mt-8 grid gap-6 text-sm sm:grid-cols-2">
+              <div className="glass-input p-4 rounded-xl">
+                <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Email</dt>
+                <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.email}</dd>
               </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-white/60">Role</dt>
-                <dd className="mt-1 font-medium">{baseProfile.role}</dd>
+              {baseProfile.username && (
+                <div className="glass-input p-4 rounded-xl">
+                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Username</dt>
+                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.username}</dd>
+                </div>
+              )}
+              <div className="glass-input p-4 rounded-xl">
+                <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Role</dt>
+                <dd className="mt-2">
+                  <span className="inline-flex rounded-full bg-[var(--brand-primary)]/15 px-3 py-1 text-sm font-bold text-[var(--brand-primary)] uppercase tracking-wider">
+                    {baseProfile.role}
+                  </span>
+                </dd>
               </div>
               {baseProfile.department && (
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.3em] text-white/60">Department</dt>
-                  <dd className="mt-1 font-medium">{baseProfile.department}</dd>
+                <div className="glass-input p-4 rounded-xl">
+                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Department</dt>
+                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.department}</dd>
+                </div>
+              )}
+              {baseProfile.roll_no && (
+                <div className="glass-input p-4 rounded-xl">
+                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Roll No.</dt>
+                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.roll_no}</dd>
                 </div>
               )}
               {baseProfile.enrollment_number && (
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.3em] text-white/60">Enrollment</dt>
-                  <dd className="mt-1 font-medium">{baseProfile.enrollment_number}</dd>
+                <div className="glass-input p-4 rounded-xl">
+                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Enrollment No.</dt>
+                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.enrollment_number}</dd>
+                </div>
+              )}
+              {baseProfile.division && (
+                <div className="glass-input p-4 rounded-xl">
+                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Division</dt>
+                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.division}</dd>
                 </div>
               )}
               {baseProfile.employee_id && (
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.3em] text-white/60">Employee ID</dt>
-                  <dd className="mt-1 font-medium">{baseProfile.employee_id}</dd>
+                <div className="glass-input p-4 rounded-xl">
+                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Employee ID</dt>
+                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">{baseProfile.employee_id}</dd>
                 </div>
               )}
               {baseProfile.year && (
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.3em] text-white/60">Year</dt>
-                  <dd className="mt-1 font-medium">Year {baseProfile.year}</dd>
+                <div className="glass-input p-4 rounded-xl">
+                  <dt className="text-xs uppercase tracking-[0.3em] text-[var(--brand-dark)]/50 font-semibold">Year</dt>
+                  <dd className="mt-2 font-semibold text-[var(--brand-dark)]">Year {baseProfile.year}</dd>
                 </div>
               )}
             </dl>
           </div>
 
-          <AvatarUploader
-            userId={baseProfile.id}
-            fullName={baseProfile.full_name}
-            initialUrl={baseProfile.avatar_url}
-          />
+          <div className="lg:sticky lg:top-24">
+            <AvatarUploader
+              userId={baseProfile.id}
+              fullName={baseProfile.full_name}
+              initialUrl={baseProfile.avatar_url}
+            />
+          </div>
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[var(--brand-secondary)]/50 bg-white/95 p-8 shadow-[0_25px_60px_-35px_rgba(22,39,85,0.45)]">
-        <h2 className="text-xl font-semibold text-[var(--brand-dark,#111029)]">Activity snapshot</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Quick stats tailored to your role so you always know what happened last.
+      {/* Feedback statistics section */}
+      <section className="glass-card rounded-3xl p-8 shadow-lg animate-slide-up animate-delay-100">
+        <h2 className="text-2xl font-bold text-[var(--brand-dark)]">📊 Feedback Activity</h2>
+        <p className="mt-2 text-sm text-[var(--brand-dark)]/60">
+          Track your feedback submissions and view insights across all your courses.
         </p>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl border border-[var(--brand-secondary)]/60 bg-[var(--brand-highlight)]/80 px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Feedback submitted</p>
-            <p className="mt-2 text-2xl font-semibold text-[var(--brand-primary)]">{feedbackSnapshot.totalSubmitted}</p>
-            <p className="mt-1 text-xs text-slate-500">Last entry: {formatDate(feedbackSnapshot.lastSubmittedAt)}</p>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="glass-input rounded-2xl p-5 hover-lift">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--brand-primary)]/70">Feedback submitted</p>
+            <p className="mt-3 text-3xl font-bold text-[var(--brand-primary)]">{feedbackSnapshot.totalSubmitted}</p>
+            <p className="mt-2 text-xs text-[var(--brand-dark)]/50">Last: {formatDate(feedbackSnapshot.lastSubmittedAt)}</p>
           </div>
-          <div className="rounded-2xl border border-[var(--brand-secondary)]/60 bg-[var(--brand-highlight)]/80 px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Feedback received</p>
-            <p className="mt-2 text-2xl font-semibold text-[var(--brand-primary)]">{feedbackSnapshot.totalReceived}</p>
-            <p className="mt-1 text-xs text-slate-500">Average rating: {feedbackSnapshot.averageRating ?? "—"}</p>
+          <div className="glass-input rounded-2xl p-5 hover-lift">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--brand-primary)]/70">Feedback received</p>
+            <p className="mt-3 text-3xl font-bold text-[var(--brand-primary)]">{feedbackSnapshot.totalReceived}</p>
+            <p className="mt-2 text-xs text-[var(--brand-dark)]/50">Avg: {feedbackSnapshot.averageRating ?? "—"}</p>
           </div>
-          <div className="rounded-2xl border border-[var(--brand-secondary)]/60 bg-[var(--brand-highlight)]/80 px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Top rating</p>
-            <p className="mt-2 text-2xl font-semibold text-[var(--brand-primary)]">
+          <div className="glass-input rounded-2xl p-5 hover-lift">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--brand-primary)]/70">Top rating</p>
+            <p className="mt-3 text-3xl font-bold text-[var(--brand-primary)]">
               {feedbackSnapshot.ratingBreakdown.reduce((best, entry) => (entry.count > best.count ? entry : best), { rating: 0, count: 0 }).rating || "—"}
             </p>
-            <p className="mt-1 text-xs text-slate-500">Most common score</p>
+            <p className="mt-2 text-xs text-[var(--brand-dark)]/50">Most common</p>
           </div>
-          <div className="rounded-2xl border border-[var(--brand-secondary)]/60 bg-[var(--brand-highlight)]/80 px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Role</p>
-            <p className="mt-2 text-2xl font-semibold text-[var(--brand-primary)]">{baseProfile.role}</p>
-            <p className="mt-1 text-xs text-slate-500">Stay consistent & updated</p>
+          <div className="glass-input rounded-2xl p-5 hover-lift">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--brand-primary)]/70">Role</p>
+            <p className="mt-3">
+              <span className="inline-flex rounded-full bg-[var(--brand-primary)]/15 px-4 py-2 text-lg font-bold text-[var(--brand-primary)] uppercase tracking-wider">
+                {baseProfile.role}
+              </span>
+            </p>
+            <p className="mt-2 text-xs text-[var(--brand-dark)]/50">Your access level</p>
           </div>
         </div>
 
         {feedbackSnapshot.courseSummaries.length > 0 && (
-          <div className="mt-8 space-y-4">
-            <h3 className="text-lg font-semibold text-slate-800">Course breakdown</h3>
+          <div className="mt-10 space-y-5 animate-slide-up animate-delay-200">
+            <h3 className="text-xl font-bold text-[var(--brand-dark)]">📚 Course Breakdown</h3>
             <div className="grid gap-4 md:grid-cols-2">
               {feedbackSnapshot.courseSummaries.map((course) => (
                 <div key={course.courseCode} className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">

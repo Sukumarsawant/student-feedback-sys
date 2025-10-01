@@ -15,34 +15,34 @@ const footerLinks: FooterColumn[] = [
   {
     title: "Team",
     items: [
-      { label: "Sukumar" },
-      { label: "Gautami" },
-      { label: "Varshit" },
-      { label: "Soumya" }
+      { label: "Leadership circle", href: "/team/leadership" },
+      { label: "Product builders", href: "/team/builders" },
+      { label: "Collaboration guide", href: "mailto:feedback@campus.edu?subject=Collaboration" }
     ]
   },
   {
-    title: "Resources",
+    title: "Product",
     items: [
-      { label: "Submit Feedback", href: "/feedback" },
-      { label: "Teacher Forms", href: "/teacher/forms" },
-      { label: "Timetable", href: "/admin/timetable" }
+      { label: "Student feedback", href: "/feedback" },
+      { label: "Teacher workspace", href: "/teacher" },
+      { label: "Admin operations", href: "/admin" },
+      { label: "Analytics pulse", href: "/analytics" }
     ]
   },
   {
     title: "Support",
     items: [
-      { label: "Help centre", href: "#" },
-      { label: "Contact", href: "mailto:feedback@campus.edu" },
-      { label: "Status", href: "#" }
+      { label: "Help centre", href: "mailto:feedback@campus.edu?subject=Help%20centre" },
+      { label: "Status updates", href: "mailto:feedback@campus.edu?subject=Status" },
+      { label: "Community Q&A", note: true }
     ]
   }
 ];
 
 export default function Footer() {
   return (
-    <footer className="mt-16 border-t border-[var(--brand-secondary)]/40 bg-white/90">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-6 py-12 sm:px-8 lg:px-10">
+    <footer className="mt-16 border-t border-[var(--brand-secondary)]/45 bg-white/95">
+  <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-6 py-12 sm:px-8 lg:px-10">
         <div className="grid gap-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div className="space-y-4">
             <Link href="/" className="inline-flex items-center gap-2 text-2xl font-semibold text-[var(--brand-primary)]">
@@ -51,13 +51,13 @@ export default function Footer() {
               </span>
               Student Feedback
             </Link>
-            <p className="max-w-md text-sm leading-relaxed text-slate-600">
+            <p className="max-w-md text-sm leading-relaxed text-[color:var(--brand-dark)]/75">
               A modern DBMS-powered platform for campuses to collect, analyse, and act on student sentiment. Empower administrators, teachers, and learners with one shared source of truth.
             </p>
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-              <span className="badge">Supabase Auth</span>
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-dark)]/60">
+              <span className="badge" data-tone="primary">Supabase Auth</span>
               <span className="badge">Realtime Insights</span>
-              <span className="badge">DBMS Project</span>
+              <span className="badge" data-tone="accent">DBMS Project</span>
             </div>
           </div>
 
@@ -66,7 +66,7 @@ export default function Footer() {
               <h4 className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-dark)]/70">
                 {column.title}
               </h4>
-              <ul className="space-y-3 text-sm text-slate-600">
+              <ul className="space-y-3 text-sm text-[color:var(--brand-dark)]/70">
                 {column.items.map((item) => (
                   <li key={item.label}>
                     {item.href ? (
@@ -92,7 +92,7 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-slate-200/60 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-t border-[var(--brand-secondary)]/45 pt-6 text-xs text-[color:var(--brand-dark)]/60 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Student Feedback System. Crafted for the DBMS project cohort.</p>
           <div className="flex flex-wrap items-center gap-4">
             <Link href="#" className="hover:text-[var(--brand-primary)]">

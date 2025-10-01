@@ -191,42 +191,42 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[var(--background)]">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),_transparent_65%),radial-gradient(circle_at_bottom,_rgba(34,197,94,0.14),_transparent_60%),linear-gradient(120deg,_#eff6ff,_#dbeafe_45%,_#bfdbfe_72%,_#f8fafc)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(53,71,212,0.16),_transparent_65%),radial-gradient(circle_at_bottom,_rgba(232,96,79,0.16),_transparent_60%),linear-gradient(120deg,_#fdf9ef,_#f6deac_45%,_#f3e3c2_72%,_#f9f6f1)]" />
       <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-start justify-center gap-12 px-6 py-16 sm:px-10 lg:flex-row lg:items-center lg:justify-between">
-  <div className="hidden max-w-xl flex-1 flex-col gap-6 rounded-3xl border border-white/30 bg-white/20 p-10 text-[var(--foreground)] shadow-[0_30px_70px_-35px_rgba(15,23,42,0.45)] backdrop-blur lg:flex">
+  <div className="hidden max-w-xl flex-1 flex-col gap-6 rounded-3xl border border-white/35 bg-white/25 p-10 text-[var(--foreground)] shadow-[0_30px_70px_-35px_rgba(26,20,41,0.45)] backdrop-blur lg:flex">
           <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/60 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[var(--brand-primary-dark)]">
-            Student feedback system
+            FeebMEbacK
           </span>
           <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
             Share insights, elevate courses, celebrate great teaching.
           </h1>
-          <p className="text-base leading-relaxed text-slate-700">
+          <p className="text-base leading-relaxed text-[color:var(--brand-dark)]/80">
             Every response helps teachers tailor their sessions, departments refine curricula, and classmates succeed. Sign in to continue the conversation—or create an account and join the loop of continuous improvement.
           </p>
-          <div className="mt-auto grid gap-4 text-sm text-slate-600">
-            <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3">
-              <p className="font-medium text-slate-900">Fast dual-mode sign in</p>
+          <div className="mt-auto grid gap-4 text-sm text-[color:var(--brand-dark)]/75">
+            <div className="rounded-2xl border border-white/40 bg-white/65 px-4 py-3">
+              <p className="font-medium text-[var(--brand-dark)]">Fast dual-mode sign in</p>
               <p>Switch between student and teacher login tailored to your role.</p>
             </div>
-            <div className="rounded-2xl border border-white/40 bg-white/60 px-4 py-3">
-              <p className="font-medium text-slate-900">Secure profiles</p>
+            <div className="rounded-2xl border border-white/40 bg-white/65 px-4 py-3">
+              <p className="font-medium text-[var(--brand-dark)]">Secure profiles</p>
               <p>Profiles sync automatically with Supabase so details stay current.</p>
             </div>
           </div>
         </div>
 
         <div className="relative w-full max-w-md flex-1">
-          <div className="relative overflow-hidden rounded-3xl border border-white/50 bg-white/90 p-8 shadow-[0_24px_60px_-28px_rgba(30,64,175,0.45)] backdrop-blur">
+          <div className="relative overflow-hidden rounded-3xl border border-white/55 bg-white/92 p-8 shadow-[0_24px_60px_-28px_rgba(37,46,135,0.45)] backdrop-blur">
             <div className="absolute -top-24 right-12 h-48 w-48 rounded-full bg-[color-mix(in_srgb,_var(--brand-primary)_55%,_white_45%)] blur-3xl" />
             <div className="absolute -bottom-28 left-16 h-40 w-40 rounded-full bg-[color-mix(in_srgb,_var(--brand-secondary)_60%,_white_40%)] blur-3xl" />
             <div className="relative">
               <span className="inline-flex rounded-full bg-[var(--brand-secondary)] px-4 py-1 text-xs font-medium uppercase tracking-wide text-[var(--brand-primary-dark)]">
                 {isLogin ? "Sign in" : "Create account"}
               </span>
-              <h2 className="mt-4 text-3xl font-bold text-slate-900">
+              <h2 className="mt-4 text-3xl font-bold text-[var(--brand-dark)]">
                 {isLogin ? "Welcome back" : "Let’s get you set up"}
               </h2>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-[color:var(--brand-dark)]/65">
                 {isLogin
                   ? "Access your personalised dashboard in just a couple of clicks."
                   : "Create a student profile to start sharing feedback instantly."}
@@ -238,7 +238,7 @@ export default function LoginPage() {
                 {!isLogin ? (
                   <>
                     <div>
-                      <label htmlFor="fullName" className="text-sm font-medium text-slate-600">
+                      <label htmlFor="fullName" className="text-sm font-medium text-[color:var(--brand-dark)]/75">
                         Full name
                       </label>
                       <input
@@ -248,12 +248,12 @@ export default function LoginPage() {
                         required
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                        className="mt-2 w-full rounded-2xl border border-[var(--brand-secondary)]/60 bg-white px-4 py-3 text-sm font-medium text-[var(--brand-dark)] shadow-sm transition focus:border-[var(--brand-primary)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/25"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="role" className="text-sm font-medium text-slate-600">
+                      <label htmlFor="role" className="text-sm font-medium text-[color:var(--brand-dark)]/75">
                         Role
                       </label>
                       <select

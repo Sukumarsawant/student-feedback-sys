@@ -1,28 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { usePathname, useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
+import { Home, FileText, Users, Star } from "lucide-react";
 
 type Profile = {
   role: string;
   full_name?: string;
   avatar_url?: string | null;
 } | null;
-
-const roleNavItems: Record<string, { href: string; label: string }> = {
-  student: { href: "/student", label: "Dashboard" },
-  teacher: { href: "/teacher", label: "Dashboard" },
-  admin: { href: "/admin", label: "Dashboard" }
-};
-
-type NavLink = {
-  href: string;
-  label: string;
-  variant?: "link" | "primary" | "outline";
-};
 
 type SupabaseProfileRow = {
   role: string | null;
@@ -76,34 +66,18 @@ export default function Navbar() {
   const [profile, setProfile] = useState<Profile>(null);
   const [loading, setLoading] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+  const [logoError, setLogoError] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  const navLinks = useMemo<NavLink[]>(() => {
-    const links: NavLink[] = [
-      { href: "/", label: "Home" },
-      { href: "/#team", label: "Team" },
-    ];
-
-    const role = profile?.role;
-
-    if (!role) {
-      links.push(
-        { href: "/login?role=student", label: "Student Login", variant: "primary" },
-        { href: "/login?role=teacher", label: "Teacher Login", variant: "outline" },
-        { href: "/admin-login", label: "Admin Login", variant: "outline" }
-      );
-      return links;
-    }
-
-    if (roleNavItems[role]) {
-      links.push(roleNavItems[role]);
-    }
-
-    if (role !== "student") {
-      links.push({ href: "/analytics", label: "Analytics" });
-    }
-
-    return links;
-  }, [profile?.role]);
+  // Scroll effect for navbar compression
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     // Get initial user
@@ -153,164 +127,236 @@ export default function Navbar() {
     try {
       setLoggingOut(true);
 
-      const [clientResult, serverResult] = await Promise.allSettled([
-        supabase.auth.signOut(),
-        fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-      ]);
+      // Call server logout route to clear cookies
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-      if (clientResult.status === 'rejected') {
-        throw clientResult.reason;
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(body || 'Failed to sign out');
       }
 
-      if (serverResult.status === 'rejected') {
-        throw serverResult.reason;
-      }
-
-      if (!serverResult.value.ok) {
-        const body = await serverResult.value.text();
-        throw new Error(body || 'Failed to complete sign out');
-      }
-
+      // Clear local state
       setUser(null);
       setProfile(null);
-      router.push('/login');
-      router.refresh();
+      
+      // Use hard navigation to clear all client-side cache
+      window.location.href = '/login?role=student';
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to sign out';
       console.error("Failed to sign out:", message);
-    } finally {
+      alert(`Logout failed: ${message}`);
       setLoggingOut(false);
     }
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-[var(--brand-secondary)]/50 bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-  <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4 sm:px-8">
-        <div className="flex flex-wrap items-center gap-6">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--brand-secondary)] text-lg font-bold uppercase text-[var(--brand-dark)] shadow-sm">
-              SF
-            </span>
-            <div className="flex flex-col leading-tight">
-              <span className="text-base font-semibold uppercase tracking-[0.3em] text-[var(--brand-dark)]/80">
-                Student Feedback
-              </span>
-              <span className="text-xs font-medium text-slate-500">DBMS project platform</span>
-            </div>
+    <nav className={`fixed left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl px-4 transition-all duration-500 ease-out animate-slide-down ${
+      isScrolled ? 'top-2' : 'top-6'
+    }`}>
+      <div className={`glass-navbar-enhanced flex items-center rounded-full transition-all duration-500 ease-out ${
+        isScrolled ? 'px-4 py-2.5 gap-2 justify-center' : 'px-6 py-3.5 gap-4 justify-between'
+      }`}>
+        
+        {/* Left Navigation Icons */}
+        <div className={`flex items-center transition-all duration-500 ease-out ${
+          isScrolled ? 'gap-1.5' : 'gap-2'
+        }`}>
+          {/* Home Icon */}
+          <Link 
+            href="/" 
+            className={`group relative rounded-xl transition-all duration-500 ease-out ${
+              pathname === "/" 
+                ? "bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/25" 
+                : "hover:bg-gray-100"
+            } ${isScrolled ? 'p-2' : 'p-3'}`}
+            title="Home"
+          >
+            <Home 
+              size={isScrolled ? 17 : 19} 
+              strokeWidth={2.5} 
+              className={`nav-icon ${pathname === "/" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
+            />
           </Link>
-
-          <div className="hidden items-center gap-3 text-sm font-semibold uppercase tracking-[0.25em] text-slate-600 lg:flex">
-            {navLinks.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-
-              if (item.variant === "primary") {
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="inline-flex items-center rounded-full bg-[var(--brand-primary)] px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white shadow-sm transition hover:bg-[var(--brand-primary-dark)]"
-                  >
-                    {item.label}
-                  </Link>
-                );
-              }
-
-              if (item.variant === "outline") {
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="inline-flex items-center rounded-full border border-[var(--brand-primary)]/40 px-5 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[var(--brand-primary)] transition hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary-dark)]"
-                  >
-                    {item.label}
-                  </Link>
-                );
-              }
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                    className={`rounded-full px-4 py-2 text-slate-700 transition ${
-                    isActive
-                      ? "bg-[var(--brand-primary)]/15 text-[var(--brand-primary)] shadow-sm"
-                        : "link-hover hover:bg-[var(--brand-secondary)]/45 hover:text-[var(--brand-primary)]"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
+          
+          {/* Team Icon */}
+          <Link 
+            href="/team" 
+            className={`group relative rounded-xl transition-all duration-500 ease-out ${
+              pathname === "/team" 
+                ? "bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/25" 
+                : "hover:bg-gray-100"
+            } ${isScrolled ? 'p-2' : 'p-3'}`}
+            title="Team"
+          >
+            <Users 
+              size={isScrolled ? 17 : 19} 
+              strokeWidth={2.5} 
+              className={`nav-icon ${pathname === "/team" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
+            />
+          </Link>
+          
+          {/* Reviews Icon */}
+          <Link 
+            href="/reviews" 
+            className={`group relative rounded-xl transition-all duration-500 ease-out ${
+              pathname === "/reviews" 
+                ? "bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/25" 
+                : "hover:bg-gray-100"
+            } ${isScrolled ? 'p-2' : 'p-3'}`}
+            title="Reviews"
+          >
+            <Star 
+              size={isScrolled ? 17 : 19} 
+              strokeWidth={2.5} 
+              className={`nav-icon ${pathname === "/reviews" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
+            />
+          </Link>
         </div>
 
-  <div className="flex items-center gap-3 text-sm whitespace-nowrap">
+        {/* Center Divider */}
+        {!isScrolled && (
+          <div className="hidden md:block h-9 w-px bg-gradient-to-b from-transparent via-gray-300/70 to-transparent mx-1"></div>
+        )}
+        
+        {/* Right Navigation */}
+        <div className={`flex items-center transition-all duration-500 ease-out ${
+          isScrolled ? 'gap-1.5' : 'gap-2'
+        }`}>
+          {/* Dashboard/Forms Icon */}
+          <Link
+            href={user ? (profile?.role === "student" ? "/feedback" : "/analytics") : "/login"}
+            className={`group relative rounded-xl transition-all duration-500 ease-out ${
+              pathname === "/feedback" || pathname === "/analytics" 
+                ? "bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/25" 
+                : "hover:bg-gray-100"
+            } ${isScrolled ? 'p-2' : 'p-3'}`}
+            title="Dashboard"
+          >
+            <FileText 
+              size={isScrolled ? 17 : 19} 
+              strokeWidth={2.5} 
+              className={`nav-icon ${pathname === "/feedback" || pathname === "/analytics" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
+            />
+          </Link>
+
+          {/* Divider */}
+          {!isScrolled && (
+            <div className="h-9 w-px bg-gradient-to-b from-transparent via-gray-300/70 to-transparent mx-1"></div>
+          )}
+          
+          {/* Profile or Login */}
           {loading ? (
-            <div className="rounded-full bg-[var(--brand-muted)] px-3 py-1 text-slate-500">
-              Checking session…
+            <div className={`flex items-center gap-2.5 rounded-full bg-gray-100/80 transition-all duration-500 ease-out ${
+              isScrolled ? 'px-3 py-2' : 'px-4 py-2.5'
+            }`}>
+              <div className="h-2 w-2 rounded-full bg-gray-500 animate-pulse"></div>
+              {!isScrolled && <span className="text-xs font-semibold text-gray-600">Loading</span>}
             </div>
           ) : user ? (
-            <>
+            <div className={`flex items-center transition-all duration-500 ease-out ${
+              isScrolled ? 'gap-1.5' : 'gap-2'
+            }`}>
               <Link
                 href="/profile"
-                className="inline-flex h-11 items-center gap-3 rounded-full border border-[var(--brand-primary)]/40 bg-white px-4 text-sm font-semibold text-[var(--brand-primary)] shadow-sm transition hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary-dark)]"
+                className={`group flex items-center gap-2.5 rounded-full transition-all duration-500 ease-out ${
+                  pathname === "/profile"
+                    ? "bg-[var(--brand-primary)] shadow-lg shadow-[var(--brand-primary)]/25"
+                    : "hover:bg-gray-100"
+                } ${isScrolled ? 'pl-1 pr-2 py-1' : 'pl-1.5 pr-4 py-1.5'}`}
+                title="Profile"
               >
                 {profile?.avatar_url ? (
-                  <span className="inline-flex h-9 w-9 overflow-hidden rounded-full border border-[var(--brand-primary)]/40 bg-white/60">
+                  <span className={`inline-flex overflow-hidden rounded-full border-2 border-white shadow-sm transition-all duration-500 ease-out ${
+                    isScrolled ? 'h-7 w-7' : 'h-8 w-8'
+                  }`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={profile.avatar_url}
-                      alt={profile.full_name ?? user.email ?? "Profile avatar"}
+                      alt={profile.full_name ?? "Profile"}
                       className="h-full w-full object-cover"
                     />
                   </span>
                 ) : (
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--brand-primary)]/15 text-sm font-semibold text-[var(--brand-primary)]">
-                    {profile?.full_name?.charAt(0)?.toUpperCase() ?? user.email?.charAt(0)?.toUpperCase() ?? "U"}
+                  <span className={`inline-flex items-center justify-center rounded-full bg-gradient-to-br from-[var(--brand-primary)] to-purple-600 font-bold text-white shadow-sm border-2 border-white transition-all duration-500 ease-out ${
+                    isScrolled ? 'h-7 w-7 text-[10px]' : 'h-8 w-8 text-xs'
+                  }`}>
+                    {profile?.full_name?.charAt(0)?.toUpperCase() ?? "U"}
                   </span>
                 )}
-                <span className="hidden sm:inline">
-                  {profile?.full_name || user.email}
-                </span>
-                {profile?.role && (
-                  <span className="badge bg-[var(--brand-secondary)] text-[var(--brand-dark)]">
-                    {profile.role}
+                {!isScrolled && (
+                  <span className={`hidden sm:inline text-sm font-semibold transition-colors ${
+                    pathname === "/profile" ? "text-white" : "text-gray-800 group-hover:text-[var(--brand-primary)]"
+                  }`}>
+                    {profile?.full_name?.split(' ')[0] || "Profile"}
                   </span>
                 )}
               </Link>
+              
               <button
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="btn btn-primary h-11 whitespace-nowrap px-6 disabled:cursor-not-allowed disabled:opacity-70"
+                className={`bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-full font-semibold hover:from-gray-800 hover:to-gray-700 transition-all duration-500 ease-out disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg hover:-translate-y-0.5 ${
+                  isScrolled ? 'px-3 py-1.5 text-xs' : 'px-5 py-2.5 text-sm'
+                }`}
               >
-                {loggingOut ? 'Signing out…' : 'Logout'}
+                {loggingOut ? (
+                  <span className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                  </span>
+                ) : (
+                  "Logout"
+                )}
               </button>
-            </>
+            </div>
           ) : (
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-600 lg:hidden">
-              <Link
-                href="/login?role=student"
-                className="inline-flex items-center rounded-full bg-[var(--brand-primary)] px-4 py-2 text-white"
+            <div className="relative">
+              <button
+                onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+                className={`bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-full font-semibold hover:from-gray-800 hover:to-gray-700 transition-all duration-500 ease-out shadow-md hover:shadow-lg hover:-translate-y-0.5 ${
+                  isScrolled ? 'px-4 py-1.5 text-xs' : 'px-6 py-2.5 text-sm'
+                }`}
               >
-                Student Login
-              </Link>
-              <Link
-                href="/login?role=teacher"
-                className="inline-flex items-center rounded-full border border-[var(--brand-primary)]/40 px-4 py-2 text-[var(--brand-primary)]"
-              >
-                Teacher Login
-              </Link>
-              <Link
-                href="/admin-login"
-                className="inline-flex items-center rounded-full border border-[var(--brand-primary)]/40 px-4 py-2 text-[var(--brand-primary)]"
-              >
-                Admin Login
-              </Link>
+                Login
+              </button>
+              {showLoginDropdown && (
+                <div className="absolute right-0 mt-3 w-48 bg-white/98 backdrop-blur-xl rounded-2xl shadow-[0_12px_40px_rgb(0,0,0,0.15)] py-2.5 animate-scale-in border-2 border-gray-900/10 overflow-hidden">
+                  <Link
+                    href="/login?role=student"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+                    onClick={() => setShowLoginDropdown(false)}
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-blue-600 font-bold text-xs shadow-sm">
+                      S
+                    </span>
+                    <span>Student</span>
+                  </Link>
+                  <Link
+                    href="/login?role=teacher"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-green-50 hover:text-green-600 transition-all duration-200"
+                    onClick={() => setShowLoginDropdown(false)}
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-100 text-green-600 font-bold text-xs shadow-sm">
+                      T
+                    </span>
+                    <span>Teacher</span>
+                  </Link>
+                  <Link
+                    href="/admin-login"
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200"
+                    onClick={() => setShowLoginDropdown(false)}
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-100 text-purple-600 font-bold text-xs shadow-sm">
+                      A
+                    </span>
+                    <span>Admin</span>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </div>
