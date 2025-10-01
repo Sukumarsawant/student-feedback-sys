@@ -60,14 +60,12 @@ function resolveProfileRecord(profile: SupabaseProfileRow | null, user: User | n
 
 export default function Navbar() {
   const supabase = createSupabaseBrowserClient();
-  const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile>(null);
   const [loading, setLoading] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
-  const [logoError, setLogoError] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Scroll effect for navbar compression

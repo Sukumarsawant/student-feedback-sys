@@ -69,9 +69,9 @@ export default async function HomePage() {
             <h1 className="text-4xl font-bold leading-snug text-white sm:text-5xl drop-shadow-lg">
               A campus feedback studio that to replace forms.
             </h1>
-            <p className="text-base leading-relaxed text-white/95 sm:text-lg font-medium drop-shadow-md">
-              why the hassle to fill google forms ?
-            </p>
+                          <p className="text-base font-medium text-[var(--brand-dark)] italic">
+                &quot;Amazing tool for teachers to track student feedback effectively.&quot;
+              </p>
 
             <div className="flex flex-wrap items-center gap-3">
               <Link href={dashboardHref} className="btn btn-primary">
