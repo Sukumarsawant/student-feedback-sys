@@ -90,10 +90,10 @@ export default async function AdminPage() {
   ];
 
   const quickActions = [
-    { title: "Create Course", description: "Add a new course to the system." },
-    { title: "New Form", description: "Set up a feedback form." },
-    { title: "Assign Teachers", description: "Link teachers to courses." },
-    { title: "View Reports", description: "See feedback trends." },
+    { title: "Create Course", description: "Set up a new course and assign its details." },
+    { title: "Launch Feedback Form", description: "Collect insights with a targeted questionnaire." },
+    { title: "Assign Teachers", description: "Map instructors to their respective courses." },
+    { title: "View Analytics", description: "Review performance trends and feedback insights." },
   ];
 
   const infoItems = [
@@ -111,10 +111,10 @@ export default async function AdminPage() {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary)]">Admin dashboard</p>
             <h1 className="mt-2 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
-              Welcome, {profile.full_name ?? "Administrator"}
+              Welcome back, {profile.full_name ?? "Administrator"}
             </h1>
             <p className="mt-4 max-w-2xl text-sm text-slate-600">
-              Your feedback system overview.
+              Here&rsquo;s an at-a-glance view of everything happening across the feedback system today.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
@@ -161,7 +161,7 @@ export default async function AdminPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">Quick actions</h2>
-            <p className="text-sm text-slate-500">Common tasks at your fingertips.</p>
+            <p className="text-sm text-slate-500">Speed up your workflow with these shortcuts.</p>
           </div>
           <div className="inline-flex rounded-full bg-slate-100 px-4 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
             Coming soon
@@ -182,9 +182,9 @@ export default async function AdminPage() {
       </section>
 
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <h2 className="text-xl font-semibold text-slate-900">Your profile</h2>
+        <h2 className="text-xl font-semibold text-slate-900">Your profile snapshot</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Your account information.
+          Keep your information up to date so everyone knows who to reach out to.
         </p>
         <dl className="mt-6 grid gap-6 sm:grid-cols-2">
           {infoItems.map((item) => (

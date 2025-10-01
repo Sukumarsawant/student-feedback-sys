@@ -56,19 +56,11 @@ export default async function TeacherPage() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary)]">Teacher dashboard</p>
-<<<<<<< HEAD
             <h1 className="mt-2 text-3xl font-bold leading-tight text-[var(--brand-dark)] sm:text-4xl">
               Hello, {profile.full_name ?? "Instructor"}
             </h1>
             <p className="mt-4 max-w-2xl text-sm text-[color:var(--brand-dark)]/75">
               Manage your courses, keep track of student feedback, and stay ahead of your teaching goals.
-=======
-            <h1 className="mt-2 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
-              Welcome, {profile.full_name ?? "Instructor"}
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm text-slate-600">
-              Manage your courses and track student feedback.
->>>>>>> b5a7457b3c1b258306ddbeef260c40dc877f4c3d
             </p>
           </div>
           <div className="grid grid-cols-1 gap-3 text-sm text-[color:var(--brand-dark)]/75 sm:grid-cols-2">
@@ -86,13 +78,8 @@ export default async function TeacherPage() {
 
       <section className="space-y-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-<<<<<<< HEAD
           <h2 className="text-2xl font-semibold text-[var(--brand-dark)]">Your courses</h2>
           <p className="text-sm text-[color:var(--brand-dark)]/65">Overview of the courses assigned to you this term.</p>
-=======
-          <h2 className="text-2xl font-semibold text-slate-900">Your courses</h2>
-          <p className="text-sm text-slate-500">Courses you&apos;re teaching this term.</p>
->>>>>>> b5a7457b3c1b258306ddbeef260c40dc877f4c3d
         </div>
 
         {courses.length > 0 ? (
@@ -151,31 +138,18 @@ export default async function TeacherPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
             </div>
-<<<<<<< HEAD
             <h3 className="mt-4 text-lg font-semibold text-[var(--brand-dark)]">No courses assigned yet</h3>
             <p className="mt-2 text-sm text-[color:var(--brand-dark)]/65">
               Once the administrator assigns courses to you, they will appear here automatically.
-=======
-            <h3 className="mt-4 text-lg font-semibold text-slate-900">No courses yet</h3>
-            <p className="mt-2 text-sm text-slate-500">
-              Your courses will appear here once assigned by an admin.
->>>>>>> b5a7457b3c1b258306ddbeef260c40dc877f4c3d
             </p>
           </div>
         )}
       </section>
 
-<<<<<<< HEAD
       <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-[var(--brand-secondary)]/45">
         <h2 className="text-xl font-semibold text-[var(--brand-dark)]">Your profile snapshot</h2>
         <p className="mt-1 text-sm text-[color:var(--brand-dark)]/65">
           Keep these details current so students and administrators can reach you easily.
-=======
-      <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <h2 className="text-xl font-semibold text-slate-900">Your profile</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Your account information.
->>>>>>> b5a7457b3c1b258306ddbeef260c40dc877f4c3d
         </p>
         <dl className="mt-6 grid gap-6 sm:grid-cols-2">
           <div className="rounded-2xl border border-[var(--brand-secondary)]/50 bg-[var(--brand-secondary)]/25 px-4 py-3">

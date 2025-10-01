@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { Home, FileText, Users, Star } from "lucide-react";
 
@@ -60,12 +60,14 @@ function resolveProfileRecord(profile: SupabaseProfileRow | null, user: User | n
 
 export default function Navbar() {
   const supabase = createSupabaseBrowserClient();
+  const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile>(null);
   const [loading, setLoading] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Scroll effect for navbar compression
@@ -158,7 +160,6 @@ export default function Navbar() {
   };
 
   return (
-<<<<<<< HEAD
     <nav className={`fixed left-1/2 -translate-x-1/2 z-50 w-full px-4 transition-all duration-500 ease-out animate-slide-down ${
       isScrolled ? 'top-2 max-w-2xl' : 'top-6 max-w-6xl'
     }`}>
@@ -219,21 +220,6 @@ export default function Navbar() {
               strokeWidth={2.5} 
               className={`nav-icon ${pathname === "/reviews" ? "text-white nav-icon-active" : "text-gray-700 group-hover:text-[var(--brand-primary)]"}`}
             />
-=======
-    <nav className="sticky top-0 z-50 border-b border-[var(--brand-secondary)]/50 bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-  <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4 sm:px-8">
-        <div className="flex flex-wrap items-center gap-6">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--brand-secondary)] text-lg font-bold uppercase text-[var(--brand-dark)] shadow-sm">
-              SF
-            </span>
-            <div className="flex flex-col leading-tight">
-              <span className="text-base font-semibold uppercase tracking-[0.3em] text-[var(--brand-dark)]/80">
-                Student Feedback
-              </span>
-              <span className="text-xs font-medium text-slate-500">DBMS Project</span>
-            </div>
->>>>>>> b5a7457b3c1b258306ddbeef260c40dc877f4c3d
           </Link>
         </div>
 
@@ -280,16 +266,11 @@ export default function Navbar() {
           isScrolled ? 'ml-3' : 'ml-6'
         }`}>
           {loading ? (
-<<<<<<< HEAD
             <div className={`flex items-center gap-2.5 rounded-full bg-gray-100/80 transition-all duration-500 ease-out ${
               isScrolled ? 'px-3 py-2' : 'px-4 py-2.5'
             }`}>
               <div className="h-2 w-2 rounded-full bg-gray-500 animate-pulse"></div>
               {!isScrolled && <span className="text-xs font-semibold text-gray-600">Loading</span>}
-=======
-            <div className="rounded-full bg-[var(--brand-muted)] px-3 py-1 text-slate-500">
-              Loading…
->>>>>>> b5a7457b3c1b258306ddbeef260c40dc877f4c3d
             </div>
           ) : user ? (
             <div className={`flex items-center transition-all duration-500 ease-out ${
