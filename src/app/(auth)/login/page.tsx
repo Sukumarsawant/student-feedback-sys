@@ -130,18 +130,32 @@ function LoginPageContent() {
         if (error) throw error;
 
         // Get user profile to redirect to appropriate dashboard
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, full_name, email')
           .eq('id', data.user?.id)
           .single();
 
-        const resolvedRole = (profile?.role || data.user?.user_metadata?.role || "").toString().toLowerCase();
+        console.log('Profile data:', profile);
+        console.log('Profile error:', profileError);
+        console.log('User metadata:', data.user?.user_metadata);
 
-        if (!resolvedRole) {
-          throw new Error('No role assigned to this account. Contact the administrator.');
+        // Try multiple sources for role
+        let resolvedRole = '';
+        
+        if (profile?.role) {
+          resolvedRole = profile.role.toLowerCase();
+        } else if (data.user?.user_metadata?.role) {
+          resolvedRole = data.user.user_metadata.role.toLowerCase();
+        } else if (data.user?.app_metadata?.role) {
+          resolvedRole = data.user.app_metadata.role.toLowerCase();
         }
 
+        if (!resolvedRole) {
+          throw new Error(`No role assigned to this account. Contact the administrator. User ID: ${data.user?.id}`);
+        }
+
+        // Redirect based on role
         if (resolvedRole === 'admin') {
           router.push('/admin');
         } else if (resolvedRole === 'teacher') {
