@@ -37,6 +37,31 @@ interface FeedbackSnapshot {
   }>;
 }
 
+interface FeedbackForm {
+  id: string;
+  title: string;
+  description?: string | null;
+  end_date?: string | null;
+  course_id: string | null;
+  courses?: {
+    course_code: string | null;
+    course_name: string | null;
+  } | null;
+}
+
+interface FeedbackResponse {
+  id: string;
+  submitted_at: string;
+  course_id: string | null;
+  feedback_forms?: {
+    title: string;
+  } | null;
+  courses?: {
+    course_code: string | null;
+    course_name: string | null;
+  } | null;
+}
+
 type Assignment = {
   id: string;
   course: {
@@ -296,8 +321,8 @@ export default async function ProfilePage() {
   }
 
   // Get available feedback forms for students
-  let availableForms: any[] = [];
-  let myResponses: any[] = [];
+  let availableForms: FeedbackForm[] = [];
+  let myResponses: FeedbackResponse[] = [];
   
   if (role === "student") {
     const { data: forms } = await supabase
@@ -413,7 +438,7 @@ export default async function ProfilePage() {
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
-                {availableForms.map((form: any) => (
+                {availableForms.map((form) => (
                   <a
                     key={form.id}
                     href={`/feedback?form=${form.id}`}
@@ -438,7 +463,7 @@ export default async function ProfilePage() {
                     )}
 
                     <div className="flex items-center justify-between text-xs text-[var(--brand-dark)]/50">
-                      <span>📅 Ends: {new Date(form.end_date).toLocaleDateString()}</span>
+                      <span>📅 Ends: {form.end_date ? new Date(form.end_date).toLocaleDateString() : 'TBD'}</span>
                       <span className="text-[var(--brand-primary)] font-semibold group-hover:underline">
                         Submit Now →
                       </span>
@@ -471,7 +496,7 @@ export default async function ProfilePage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {myResponses.map((response: any) => (
+                {myResponses.map((response) => (
                   <div
                     key={response.id}
                     className="glass-input rounded-2xl p-5 hover-lift transition-all"

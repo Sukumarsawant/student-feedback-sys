@@ -61,13 +61,14 @@ export default async function StudentPage() {
 
   const myResponses = responses ?? [];
 
-  const profileDetails = [
-    { label: "Email", value: profile.email ?? "—" },
-    { label: "Enrollment number", value: profile.enrollment_number ?? "—" },
-    { label: "Department", value: profile.department ?? "—" },
-    { label: "Year", value: profile.year ?? "—" },
-    { label: "Role", value: profile.role ?? "—" },
-  ];
+  // Profile details for future use
+  // const profileDetails = [
+  //   { label: "Email", value: profile.email ?? "—" },
+  //   { label: "Enrollment number", value: profile.enrollment_number ?? "—" },
+  //   { label: "Department", value: profile.department ?? "—" },
+  //   { label: "Year", value: profile.year ?? "—" },
+  //   { label: "Role", value: profile.role ?? "—" },
+  // ];
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-8">
@@ -172,7 +173,7 @@ export default async function StudentPage() {
 
         {myResponses.length > 0 ? (
           <div className="space-y-3">
-            {myResponses.map((response: any) => (
+            {myResponses.map((response) => (
               <article
                 key={response.id}
                 className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm transition hover:shadow-md"
