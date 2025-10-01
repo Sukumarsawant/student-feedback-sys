@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, Suspense } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
@@ -540,7 +540,11 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
+<<<<<<< HEAD
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+=======
+    <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+>>>>>>> b5a7457b3c1b258306ddbeef260c40dc877f4c3d
       <LoginPageContent />
     </Suspense>
   );

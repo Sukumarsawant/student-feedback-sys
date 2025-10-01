@@ -51,8 +51,13 @@ export default function Footer() {
               </span>
               Student Feedback
             </Link>
+<<<<<<< HEAD
             <p className="max-w-md text-sm leading-relaxed text-[color:var(--brand-dark)]/75">
               A modern DBMS-powered platform for campuses to collect, analyse, and act on student sentiment. Empower administrators, teachers, and learners with one shared source of truth.
+=======
+            <p className="max-w-md text-sm leading-relaxed text-slate-600">
+              A feedback platform for students, teachers, and administrators. Built as a DBMS course project.
+>>>>>>> b5a7457b3c1b258306ddbeef260c40dc877f4c3d
             </p>
             <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-dark)]/60">
               <span className="badge" data-tone="primary">Supabase Auth</span>
@@ -92,8 +97,13 @@ export default function Footer() {
           ))}
         </div>
 
+<<<<<<< HEAD
         <div className="flex flex-col gap-3 border-t border-[var(--brand-secondary)]/45 pt-6 text-xs text-[color:var(--brand-dark)]/60 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Student Feedback System. Crafted for the DBMS project cohort.</p>
+=======
+        <div className="flex flex-col gap-3 border-t border-slate-200/60 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} Student Feedback System. A DBMS project.</p>
+>>>>>>> b5a7457b3c1b258306ddbeef260c40dc877f4c3d
           <div className="flex flex-wrap items-center gap-4">
             <Link href="#" className="hover:text-[var(--brand-primary)]">
               Privacy

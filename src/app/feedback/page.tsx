@@ -223,7 +223,7 @@ export default function FeedbackPage() {
             </svg>
           </span>
           <p className="text-sm font-semibold uppercase tracking-[0.4em] text-[var(--brand-primary)]">Loading</p>
-          <p className="text-sm text-slate-500">Preparing your feedback studio…</p>
+          <p className="text-sm text-slate-500">Loading feedback form…</p>
         </div>
       </div>
     );
@@ -234,21 +234,21 @@ export default function FeedbackPage() {
       <section className="overflow-hidden rounded-3xl border border-[var(--brand-secondary)]/60 bg-white/95 p-8 text-[var(--brand-dark)] shadow-[0_35px_80px_-45px_rgba(15,23,42,0.35)]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary)]">Feedback studio</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary)]">Submit feedback</p>
             <h1 className="mt-2 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
-              Tell us how your learning experience feels right now.
+              How are your courses going?
             </h1>
             <p className="mt-4 max-w-2xl text-sm text-slate-600">
-              Your insights spotlight what works—and what needs a tune-up. The more you share, the better we can co-create remarkable classrooms.
+              Your feedback helps teachers know what&apos;s working and what needs improvement.
             </p>
           </div>
           <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
             <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Average rating selected</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Your rating</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">{form.rating}</p>
             </div>
             <div className="rounded-2xl border border-[var(--brand-secondary)]/70 bg-[var(--brand-secondary)]/40 px-4 py-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Active educators</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]/80">Courses</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">{loadingOptions ? "—" : teacherOptions.length}</p>
             </div>
           </div>
@@ -262,12 +262,9 @@ export default function FeedbackPage() {
         >
           <div className="space-y-4">
             <div className="space-y-2">
-              <p className="inline-flex items-center gap-2 rounded-full bg-indigo-100/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-indigo-700">
-                Step 1 · Pick a course
-              </p>
-              <h2 className="text-xl font-semibold text-slate-900">Which course or instructor are you rating?</h2>
+              <h2 className="text-xl font-semibold text-slate-900">Select a course</h2>
               <p className="text-sm text-slate-500">
-                Choose the classroom experience you’d like to review today. You can submit again for different teachers anytime.
+                Pick the course you want to give feedback on.
               </p>
             </div>
 
@@ -277,7 +274,7 @@ export default function FeedbackPage() {
                   <svg className="h-5 w-5 animate-spin text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v4m0 8v4m8-8h-4M8 12H4m12.364 5.364l-2.828-2.828M8.464 8.464 5.636 5.636m12.728 0-2.828 2.828M8.464 15.536l-2.828 2.828" />
                   </svg>
-                  Fetching your class list…
+                  Loading courses…
                 </div>
               )}
 
@@ -287,16 +284,16 @@ export default function FeedbackPage() {
                   <button
                     type="button"
                     onClick={() => loadTeacherOptions()}
-                    className="inline-flex w-fit items-center gap-2 rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-rose-500"
+                    className="inline-flex w-fit items-center gap-2 rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-rose-500"
                   >
-                    Try again
+                    Retry
                   </button>
                 </div>
               )}
 
               {!loadingOptions && !optionsError && teacherOptions.length === 0 && (
                 <div className="rounded-3xl border border-amber-200 bg-amber-50/80 p-5 text-sm text-amber-700">
-                  No course assignments are linked to your account yet. Check back soon or contact the academic office.
+                  No courses found. Contact your academic office if this seems wrong.
                 </div>
               )}
 
@@ -347,11 +344,11 @@ export default function FeedbackPage() {
                 onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })}
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
               >
-                <option value={1}>1 — Needs serious work</option>
-                <option value={2}>2 — Needs improvement</option>
-                <option value={3}>3 — Solid, room to grow</option>
-                <option value={4}>4 — Strong experience</option>
-                <option value={5}>5 — Exceptional learning</option>
+                <option value={1}>1 — Poor</option>
+                <option value={2}>2 — Fair</option>
+                <option value={3}>3 — Good</option>
+                <option value={4}>4 — Very good</option>
+                <option value={5}>5 — Excellent</option>
               </select>
             </div>
 
@@ -362,7 +359,7 @@ export default function FeedbackPage() {
                 className="flex cursor-pointer items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:border-indigo-200"
               >
                 <span className="text-sm text-slate-600">
-                  Hide your name from instructors—admins will still see aggregated data.
+                  Hide your name from instructors.
                 </span>
                 <input
                   id="is_anonymous"
@@ -384,12 +381,12 @@ export default function FeedbackPage() {
               id="comments"
               name="comments"
               rows={5}
-              placeholder="Share what resonated, what didn’t, or suggestions to improve the class experience."
+              placeholder="Tell us what&apos;s working and what could be better."
               value={form.comments ?? ""}
               onChange={(e) => setForm({ ...form, comments: e.target.value })}
               className="w-full rounded-3xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-900 shadow-sm transition focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
             />
-            <p className="text-xs text-slate-400">Pro tip: Specific examples help instructors respond faster.</p>
+            <p className="text-xs text-slate-400">Specific examples are most helpful.</p>
           </div>
 
           {error && (
@@ -425,24 +422,21 @@ export default function FeedbackPage() {
 
         <aside className="flex flex-col gap-6 rounded-3xl border border-[var(--brand-secondary)]/60 bg-white/95 p-6 text-slate-600 shadow-[0_25px_60px_-40px_rgba(15,23,42,0.35)]">
           <div className="space-y-2">
-            <p className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-secondary)]/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--brand-primary-dark)]">
-              Why it matters
-            </p>
-            <h3 className="text-lg font-semibold text-slate-900">Your words become action items.</h3>
+            <h3 className="text-lg font-semibold text-slate-900">Your feedback matters</h3>
             <p className="text-sm">
-              Faculty leads review sentiment weekly and turn suggestions into experiments. Standout feedback is celebrated in monthly retros.
+              Teachers use your input to improve their courses.
             </p>
           </div>
           <div className="space-y-3 rounded-2xl border border-[var(--brand-secondary)]/60 bg-[var(--brand-secondary)]/30 p-4 text-sm">
-            <h4 className="font-semibold text-slate-900">Need anonymity?</h4>
+            <h4 className="font-semibold text-slate-900">Anonymous submissions</h4>
             <p>
-              All submissions are stored securely. If you opt in for anonymity, only admins see aggregated metrics—never your name.
+              If you choose anonymous, your name won&apos;t be shown to instructors.
             </p>
           </div>
           <div className="space-y-3 rounded-2xl border border-[var(--brand-secondary)]/60 bg-[var(--brand-secondary)]/30 p-4 text-sm">
-            <h4 className="font-semibold text-slate-900">Want to follow up?</h4>
+            <h4 className="font-semibold text-slate-900">Questions?</h4>
             <p>
-              Drop a note to your class representative or email the academic office with the form ID for deeper conversations.
+              Contact your class representative or the academic office.
             </p>
           </div>
         </aside>
