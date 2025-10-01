@@ -69,9 +69,6 @@ export default async function HomePage() {
             <h1 className="text-4xl font-bold leading-snug text-white sm:text-5xl drop-shadow-lg">
               A campus feedback studio that to replace forms.
             </h1>
-                          <p className="text-base font-medium text-[var(--brand-dark)] italic">
-                &quot;Amazing tool for teachers to track student feedback effectively.&quot;
-              </p>
 
             <div className="flex flex-wrap items-center gap-3">
               <Link href={dashboardHref} className="btn btn-primary">
@@ -147,7 +144,7 @@ export default async function HomePage() {
                 ))}
               </div>
               <p className="text-xs font-semibold text-[var(--brand-dark)] leading-relaxed">
-                "Best feedback system I've used at VIT!"
+                &quot;Best feedback system I&apos;ve used at VIT!&quot;
               </p>
               <p className="text-[10px] font-bold text-[var(--brand-primary)] mt-2 uppercase tracking-wider">
                 - Student, CMPN
@@ -249,7 +246,7 @@ export default async function HomePage() {
 
               {/* Review Text */}
               <p className="text-[var(--brand-dark)] text-base font-medium mb-6 leading-relaxed">
-                "{review.review}"
+                &quot;{review.review}&quot;
               </p>
 
               {/* Reviewer Info */}

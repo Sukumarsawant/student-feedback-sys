@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { Home, FileText, Users, Star } from "lucide-react";
 

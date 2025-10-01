@@ -47,7 +47,7 @@ export default function ReviewsPage() {
               ))}
             </div>
             <p className="text-[var(--brand-dark)] text-base font-medium mb-4 leading-relaxed">
-              "{review.review}"
+              &quot;{review.review}&quot;
             </p>
             <div className="flex items-center gap-3 pt-4 border-t border-[var(--brand-dark)]/10">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-primary)]/15 text-lg font-bold text-[var(--brand-primary)]">

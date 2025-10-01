@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -9,7 +9,7 @@ const VIT_EMAIL_DOMAIN = process.env.NEXT_PUBLIC_VIT_EMAIL_DOMAIN ?? "vit.edu.in
 const TEACHER_EMAIL_DOMAIN = process.env.NEXT_PUBLIC_TEACHER_EMAIL_DOMAIN ?? VIT_EMAIL_DOMAIN;
 const DEFAULT_TEACHER_PASSWORD = process.env.NEXT_PUBLIC_DEFAULT_TEACHER_PASSWORD ?? "123456";
 
-export default function LoginPage() {
+function LoginPageContent() {
   const supabase = createSupabaseBrowserClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -535,5 +535,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }
