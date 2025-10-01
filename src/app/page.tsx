@@ -147,7 +147,7 @@ export default async function HomePage() {
                 ))}
               </div>
               <p className="text-xs font-semibold text-[var(--brand-dark)] leading-relaxed">
-                "Best feedback system I've used at VIT!"
+                &ldquo;Best feedback system I&apos;ve used at VIT!&rdquo;
               </p>
               <p className="text-[10px] font-bold text-[var(--brand-primary)] mt-2 uppercase tracking-wider">
                 - Student, CMPN
@@ -249,7 +249,7 @@ export default async function HomePage() {
 
               {/* Review Text */}
               <p className="text-[var(--brand-dark)] text-base font-medium mb-6 leading-relaxed">
-                "{review.review}"
+                &ldquo;{review.review}&rdquo;
               </p>
 
               {/* Reviewer Info */}

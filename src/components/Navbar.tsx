@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { Home, FileText, Users, Star } from "lucide-react";
 
@@ -60,14 +60,12 @@ function resolveProfileRecord(profile: SupabaseProfileRow | null, user: User | n
 
 export default function Navbar() {
   const supabase = createSupabaseBrowserClient();
-  const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile>(null);
   const [loading, setLoading] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
-  const [logoError, setLogoError] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Scroll effect for navbar compression
