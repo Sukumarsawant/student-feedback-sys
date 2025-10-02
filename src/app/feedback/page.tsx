@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -35,7 +35,7 @@ type AssignmentRow = {
     | null;
 };
 
-export default function FeedbackPage() {
+function FeedbackPageContent() {
   const supabase = createSupabaseBrowserClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -483,5 +483,20 @@ export default function FeedbackPage() {
         </aside>
       </section>
     </div>
+  );
+}
+
+export default function FeedbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[var(--brand-primary)] border-r-transparent"></div>
+          <p className="mt-4 text-sm text-[var(--brand-dark)]/70">Loading feedback form...</p>
+        </div>
+      </div>
+    }>
+      <FeedbackPageContent />
+    </Suspense>
   );
 }

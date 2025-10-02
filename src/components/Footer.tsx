@@ -148,7 +148,7 @@ export default function Footer() {
               <Link href="mailto:feedback@vit.edu" className="block hover:text-[var(--brand-primary)] transition-colors">
                 📧 Get Help
               </Link>
-              <p className="text-[var(--brand-primary)]/70">Made at VIT Vellore</p>
+              <p className="text-[var(--brand-primary)]/70">Made at VIT MUMBAI</p>
             </div>
           </div>
 
