@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import Link from "next/link";
 
 // Force dynamic rendering and disable caching
 export const dynamic = 'force-dynamic';
@@ -90,10 +91,10 @@ export default async function AdminPage() {
   ];
 
   const quickActions = [
-    { title: "Create Course", description: "Set up a new course and assign its details." },
-    { title: "Launch Feedback Form", description: "Collect insights with a targeted questionnaire." },
-    { title: "Assign Teachers", description: "Map instructors to their respective courses." },
-    { title: "View Analytics", description: "Review performance trends and feedback insights." },
+    { title: "Create Course", description: "Set up a new course and assign its details.", href: "/admin" },
+    { title: "View System Feedback", description: "Review all feedback responses across the system.", href: "/admin/feedback" },
+    { title: "Manage Teachers", description: "Create and manage teacher accounts.", href: "/admin/teachers" },
+    { title: "View Analytics", description: "Review performance trends and feedback insights.", href: "/analytics" },
   ];
 
   const infoItems = [
@@ -169,14 +170,14 @@ export default async function AdminPage() {
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {quickActions.map((action) => (
-            <button
+            <Link
               key={action.title}
-              type="button"
+              href={action.href}
               className="h-full rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 px-5 py-4 text-left shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <h3 className="text-base font-semibold text-slate-900">{action.title}</h3>
               <p className="mt-2 text-sm text-slate-500">{action.description}</p>
-            </button>
+            </Link>
           ))}
         </div>
       </section>
