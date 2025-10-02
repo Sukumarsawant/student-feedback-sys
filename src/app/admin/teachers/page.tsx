@@ -64,7 +64,7 @@ export default function TeacherManagement() {
 
     try {
       // Get the current user session for authorization
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!user || !session) {

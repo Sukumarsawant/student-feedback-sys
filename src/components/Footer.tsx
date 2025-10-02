@@ -1,44 +1,5 @@
 import Link from "next/link";
 
-type FooterLinkItem = {
-  label: string;
-  href?: string;
-  note?: boolean;
-};
-
-type FooterColumn = {
-  title: string;
-  items: FooterLinkItem[];
-};
-
-const footerLinks: FooterColumn[] = [
-  {
-    title: "Team",
-    items: [
-      { label: "Leadership circle", href: "/team/leadership" },
-      { label: "Product builders", href: "/team/builders" },
-      { label: "Collaboration guide", href: "mailto:feedback@campus.edu?subject=Collaboration" }
-    ]
-  },
-  {
-    title: "Product",
-    items: [
-      { label: "Student feedback", href: "/feedback" },
-      { label: "Teacher workspace", href: "/teacher" },
-      { label: "Admin operations", href: "/admin" },
-      { label: "Analytics pulse", href: "/analytics" }
-    ]
-  },
-  {
-    title: "Support",
-    items: [
-      { label: "Help centre", href: "mailto:feedback@campus.edu?subject=Help%20centre" },
-      { label: "Status updates", href: "mailto:feedback@campus.edu?subject=Status" },
-      { label: "Community Q&A", note: true }
-    ]
-  }
-];
-
 export default function Footer() {
   return (
     <footer className="mt-16 border-t border-[var(--brand-secondary)]/45 relative overflow-hidden">
