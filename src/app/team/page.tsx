@@ -6,7 +6,7 @@ const teamMembers = [
     role: "Developer",
     image: "/images/team/sukumar.jpg",
     linkedin: "https://linkedin.com/in/sukumar-sawant",
-    github: "https://github.com/username"
+    github: "https://github.com/sukumarsawant"
   },
   {
     name: "Gautami",
