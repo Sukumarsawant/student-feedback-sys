@@ -166,7 +166,7 @@ export default async function HomePage() {
           </span>
           <h2 className="text-4xl font-bold text-[var(--brand-dark)]">Real Feedback from Real Users</h2>
           <p className="max-w-2xl text-lg font-medium text-[var(--brand-dark)]">
-            See what students and teachers think about FeebMEbacK
+            See what students and teachers think about FeedMEbacK
           </p>
         </div>
 

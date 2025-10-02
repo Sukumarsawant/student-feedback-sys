@@ -118,7 +118,7 @@ export default function Footer() {
             <div className="flex items-center gap-3 justify-end">
               <div className="h-px w-12 bg-gradient-to-r from-transparent to-[var(--brand-primary)]/50"></div>
               <h3 className="text-xl font-bold bg-gradient-to-r from-[var(--brand-primary)] to-purple-600 bg-clip-text text-transparent">
-                FeebMEbacK
+                FeedMEbacK
               </h3>
             </div>
             <p className="text-sm text-[var(--brand-dark)] font-medium max-w-xs leading-relaxed">

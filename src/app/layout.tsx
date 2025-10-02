@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FeebMEbacK - Feedback System",
+  title: "FeedMEbacK - Feedback System",
   description: "DBMS project with Supabase",
 };
 

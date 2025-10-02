@@ -47,7 +47,7 @@ export default function TeamPage() {
           </span>
         </h1>
         <p className="text-xl text-[var(--brand-dark)]/70 max-w-2xl mx-auto leading-relaxed">
-          The talented minds behind FeebMEbacK, working together to revolutionize campus feedback systems
+          The talented minds behind FeedMEbacK, working together to revolutionize campus feedback systems
         </p>
       </div>
 

@@ -1,7 +1,7 @@
 # Upload Images Here
 
 ## 1. Logo (REQUIRED)
-Upload your FeebMEbacK logo as:
+Upload your FeedMEbacK logo as:
 - **`logo.png`** (recommended) or **`logo.svg`**
 - Dimensions: 200x200px or larger (square or landscape)
 - Transparent background preferred

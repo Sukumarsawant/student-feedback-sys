@@ -261,7 +261,7 @@ function LoginPageContent() {
       <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-start justify-center gap-12 px-6 py-16 sm:px-10 lg:flex-row lg:items-center lg:justify-between">
   <div className="hidden max-w-xl flex-1 flex-col gap-6 rounded-3xl border border-white/35 bg-white/25 p-10 text-[var(--foreground)] shadow-[0_30px_70px_-35px_rgba(26,20,41,0.45)] backdrop-blur lg:flex">
           <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/60 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[var(--brand-primary-dark)]">
-            FeebMEbacK
+            FeedMEbacK
           </span>
           <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
             Share insights, elevate courses, celebrate great teaching.
