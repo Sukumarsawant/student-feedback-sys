@@ -51,16 +51,16 @@ function LoginPageContent() {
   // Check if user is already logged in
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
         // Get user role and redirect to appropriate dashboard
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
-          .eq('id', session.user.id)
+          .eq('id', user.id)
           .single();
         
-        const userRole = (profile?.role || session.user.user_metadata?.role || 'student').toString().toLowerCase();
+        const userRole = (profile?.role || user.user_metadata?.role || 'student').toString().toLowerCase();
         
         if (userRole === 'admin') {
           router.replace('/admin');
