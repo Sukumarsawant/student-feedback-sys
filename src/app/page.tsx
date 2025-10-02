@@ -52,7 +52,7 @@ export default async function HomePage() {
               VIT - DBMS project
             </div>
             <h1 className="text-4xl font-bold leading-snug text-white sm:text-5xl drop-shadow-lg">
-              A campus feedback studio that to replace forms.
+              A campus feedback studio to replace forms.
             </h1>
             <p className="text-base leading-relaxed text-white/95 sm:text-lg font-medium drop-shadow-md">
               why the hassle to fill google forms ?
