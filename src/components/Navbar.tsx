@@ -163,10 +163,13 @@ export default function Navbar() {
   }, [supabase]);
 
   const handleLogout = async () => {
+    console.log('🚪 [NAVBAR] Logout initiated');
     try {
       setLoggingOut(true);
+      console.log('⏳ [NAVBAR] Logging out state set to true');
 
       // Call server logout route to clear cookies
+      console.log('📡 [NAVBAR] Calling /api/auth/logout...');
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
         headers: {
@@ -174,20 +177,29 @@ export default function Navbar() {
         }
       });
 
+      console.log('📥 [NAVBAR] Response status:', response.status, response.statusText);
+      
       if (!response.ok) {
         const body = await response.text();
+        console.error('❌ [NAVBAR] Logout failed with response:', body);
         throw new Error(body || 'Failed to sign out');
       }
+      
+      const data = await response.json();
+      console.log('✅ [NAVBAR] Logout response data:', data);
 
       // Clear local state
+      console.log('🗑️ [NAVBAR] Clearing local user state');
       setUser(null);
       setProfile(null);
       
       // Use hard navigation to clear all client-side cache
+      console.log('🔄 [NAVBAR] Redirecting to login page');
       window.location.href = '/login?role=student';
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to sign out';
-      console.error("Failed to sign out:", message);
+      console.error("❌ [NAVBAR] Logout error:", err);
+      console.error("❌ [NAVBAR] Error message:", message);
       alert(`Logout failed: ${message}`);
       setLoggingOut(false);
     }

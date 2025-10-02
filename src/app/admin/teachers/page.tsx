@@ -63,10 +63,11 @@ export default function TeacherManagement() {
     setCreating(true);
 
     try {
-      // Get the current session for authorization
+      // Get the current user session for authorization
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (!session) {
+      if (!user || !session) {
         throw new Error('You must be logged in to create teachers');
       }
 

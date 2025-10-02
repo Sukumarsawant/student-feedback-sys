@@ -91,6 +91,7 @@ function LoginPageContent() {
 
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault();
+    console.log('🔐 [LOGIN] Form submitted');
     setError(null);
     setMessage(null);
     setLoading(true);
@@ -98,10 +99,12 @@ function LoginPageContent() {
     try {
       if (isLogin) {
         // Login
+        console.log('🔑 [LOGIN] Login mode, role:', activeLoginRole);
         let loginEmail = "";
         let loginPassword = "";
 
         if (activeLoginRole === "teacher") {
+          console.log('👨‍🏫 [LOGIN] Teacher login flow');
           const identifier = teacherLoginName.trim();
           if (!identifier) {
             throw new Error("Enter your teacher username or email to sign in.");
@@ -127,7 +130,9 @@ function LoginPageContent() {
           }
 
           loginPassword = preparedPassword;
+          console.log('📧 [LOGIN] Teacher email prepared:', loginEmail);
         } else {
+          console.log('🎓 [LOGIN] Student login flow');
           const normalizedStudentEmail = studentEmail.trim().toLowerCase();
           if (!normalizedStudentEmail) {
             throw new Error("Enter your student email to sign in.");
@@ -143,8 +148,10 @@ function LoginPageContent() {
 
           loginEmail = normalizedStudentEmail;
           loginPassword = normalizedPassword;
+          console.log('📧 [LOGIN] Student email prepared:', loginEmail);
         }
 
+        console.log('🔄 [LOGIN] Calling supabase.auth.signInWithPassword...');
         const { data, error } = await withTimeout(
           supabase.auth.signInWithPassword({
             email: loginEmail,
@@ -153,40 +160,56 @@ function LoginPageContent() {
           5000
         );
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ [LOGIN] Sign in error:', error);
+          throw error;
+        }
+        
+        console.log('✅ [LOGIN] Sign in successful, user:', data.user?.email);
+
+        console.log('✅ [LOGIN] Sign in successful, user:', data.user?.email);
 
         // Get user profile to redirect to appropriate dashboard
+        console.log('📊 [LOGIN] Fetching user profile...');
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role, full_name, email')
           .eq('id', data.user?.id)
           .single();
 
-        console.log('Profile data:', profile);
-        console.log('Profile error:', profileError);
-        console.log('User metadata:', data.user?.user_metadata);
+        console.log('📊 [LOGIN] Profile data:', profile);
+        console.log('📊 [LOGIN] Profile error:', profileError);
+        console.log('📊 [LOGIN] User metadata:', data.user?.user_metadata);
 
         // Try multiple sources for role
         let resolvedRole = '';
         
         if (profile?.role) {
           resolvedRole = profile.role.toLowerCase();
+          console.log('✅ [LOGIN] Role from profile:', resolvedRole);
         } else if (data.user?.user_metadata?.role) {
           resolvedRole = data.user.user_metadata.role.toLowerCase();
+          console.log('✅ [LOGIN] Role from user_metadata:', resolvedRole);
         } else if (data.user?.app_metadata?.role) {
           resolvedRole = data.user.app_metadata.role.toLowerCase();
+          console.log('✅ [LOGIN] Role from app_metadata:', resolvedRole);
         }
 
         if (!resolvedRole) {
+          console.error('❌ [LOGIN] No role found for user');
           throw new Error(`No role assigned to this account. Contact the administrator. User ID: ${data.user?.id}`);
         }
 
         // Redirect based on role
+        console.log('🔀 [LOGIN] Redirecting to dashboard based on role:', resolvedRole);
         if (resolvedRole === 'admin') {
+          console.log('🔀 [LOGIN] Redirecting to /admin');
           router.push('/admin');
         } else if (resolvedRole === 'teacher') {
+          console.log('🔀 [LOGIN] Redirecting to /teacher');
           router.push('/teacher');
         } else {
+          console.log('🔀 [LOGIN] Redirecting to /student');
           router.push('/student');
         }
       } else {
@@ -222,9 +245,12 @@ function LoginPageContent() {
         }
       }
     } catch (error: unknown) {
+      console.error('❌ [LOGIN] Catch block - Error occurred:', error);
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      console.error('❌ [LOGIN] Error message:', errorMessage);
       setError(errorMessage);
     } finally {
+      console.log('🏁 [LOGIN] Finally block - setting loading to false');
       setLoading(false);
     }
   }
@@ -241,7 +267,7 @@ function LoginPageContent() {
             Share insights, elevate courses, celebrate great teaching.
           </h1>
           <p className="text-base leading-relaxed text-[color:var(--brand-dark)]/80">
-            Every response helps teachers tailor their sessions, departments refine curricula, and classmates succeed. Sign in to continue the conversation—or create an account and join the loop of continuous improvement.
+            Every response helps teachers tailor their sessions, departments refine curricula, and classmates succeed. Sign in to continue the conversation or create an account and join the loop of continuous improvement.
           </p>
           <div className="mt-auto grid gap-4 text-sm text-[color:var(--brand-dark)]/75">
             <div className="rounded-2xl border border-white/40 bg-white/65 px-4 py-3">
