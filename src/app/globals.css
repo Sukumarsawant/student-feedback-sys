@@ -536,7 +536,7 @@ a {
     radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.8) 0%, transparent 50%);
   background-size: 400% 400%, 400% 400%, 400% 400%;
   animation: wave-gradient 12s ease infinite;
-  filter: blur(60px);
+  /* Removed blur filter for clean look */
 }
 
 .nav-icon {
@@ -799,6 +799,284 @@ a {
   height: 24px;
 }
 
+/* Animated Gradient Border Card */
+.animated-gradient-card {
+  width: 100%;
+  max-width: 400px;
+  --border-radius: 15px;
+  --border-width: 4px;
+  appearance: none;
+  position: relative;
+  padding: 1.5em 2em;
+  border: 0;
+  background: rgb(5, 5, 22);
+  font-size: 18px;
+  font-weight: 500;
+  color: #fff;
+  z-index: 2;
+  border-radius: 15px;
+}
+
+.animated-gradient-card::after {
+  --m-i: linear-gradient(#000, #000);
+  --m-o: content-box, padding-box;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding: var(--border-width);
+  border-radius: var(--border-radius);
+  background-image: conic-gradient(
+    #488cfb,
+    #29dbbc,
+    #ddf505,
+    #ff9f0e,
+    #e440bb,
+    #655adc,
+    #488cfb
+  );
+  -webkit-mask-image: var(--m-i), var(--m-i);
+  mask-image: var(--m-i), var(--m-i);
+  -webkit-mask-origin: var(--m-o);
+  mask-origin: var(--m-o);
+  -webkit-mask-clip: var(--m-o);
+  mask-clip: var(--m-o);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+  filter: hue-rotate(0);
+  animation: rotate-hue linear 500ms infinite;
+  animation-play-state: paused;
+}
+
+.animated-gradient-card:hover::after {
+  animation-play-state: running;
+}
+
+@keyframes rotate-hue {
+  to {
+    filter: hue-rotate(1turn);
+  }
+}
+
+.animated-gradient-card,
+.animated-gradient-card::after {
+  box-sizing: border-box;
+}
+
+.animated-gradient-card:active {
+  --border-width: 5px;
+}
+
+/* Responsive sizing for animated card */
+@media (max-width: 640px) {
+  .animated-gradient-card {
+    padding: 1.2em 1.5em;
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 480px) {
+  .animated-gradient-card {
+    padding: 1em 1.2em;
+    max-width: 320px;
+  }
+}
+
+/* Animated Gradient Border for Hero Section */
+.animated-gradient-card-hero {
+  --border-radius-hero: 44px;
+  --border-width-hero: 5px;
+  position: relative;
+}
+
+.animated-gradient-card-hero::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 44px;
+  background: conic-gradient(
+    from 0deg,
+    #3547d4,
+    #488cfb,
+    #56CCF2,
+    #f6deac,
+    #FF9966,
+    #e8604f,
+    #ea51ff,
+    #a955ff,
+    #3547d4
+  );
+  z-index: -1;
+  animation: rotate-border 3s linear infinite;
+}
+
+.animated-gradient-card-hero:hover::before {
+  animation-duration: 1.5s;
+}
+
+@keyframes rotate-border {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* Creative Toggle Button Animations */
+.perspective-button {
+  perspective: 1000px;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes ping-slow {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-ping-slow {
+  animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+/* Comparison Gallery - Diagonal Split on Hover */
+.comparison-gallery {
+  --g: 12px; /* the gap */
+  
+  display: grid;
+  clip-path: inset(1px); /* to avoid visual glitches */
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.comparison-gallery .comparison-img {
+  --_p: calc(-1*var(--g));
+  grid-area: 1/1;
+  width: 100%;
+  max-width: 1600px; /* control the size - extra large */
+  height: auto;
+  /* No aspect-ratio - images display at natural size */
+  cursor: pointer;
+  transition: .4s .1s;
+  border-radius: 20px;
+  box-shadow: 0 25px 80px -25px rgba(0, 0, 0, 0.4);
+}
+
+.comparison-gallery .comparison-img:first-child {
+  clip-path: polygon(0 0, calc(100% + var(--_p)) 0 , 0 calc(100% + var(--_p)));
+}
+
+.comparison-gallery .comparison-img:last-child {
+  clip-path: polygon(100% 100%, 100% calc(0% - var(--_p)), calc(0% - var(--_p)) 100%);
+}
+
+.comparison-gallery:hover .comparison-img:last-child,
+.comparison-gallery:hover .comparison-img:first-child:hover {
+  --_p: calc(50% - var(--g));
+}
+
+.comparison-gallery:hover .comparison-img:first-child,
+.comparison-gallery:hover .comparison-img:first-child:hover + .comparison-img {
+  --_p: calc(-50% - var(--g));
+}
+
+/* Responsive adjustments for comparison gallery */
+@media (max-width: 1200px) {
+  .comparison-gallery .comparison-img {
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 768px) {
+  .comparison-gallery .comparison-img {
+    max-width: 700px;
+  }
+}
+
+@media (max-width: 480px) {
+  .comparison-gallery {
+    --g: 8px;
+  }
+  .comparison-gallery .comparison-img {
+    max-width: 500px;
+  }
+}
+
+/* Animated Navbar Icons */
+
+/* Infinite Moving Cards Animation */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-250px * 7));
+  }
+}
+
+.animate-scroll {
+  animation: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
+}
+
+.scroller {
+  max-width: 100%;
+}
+
+/* Brand color variables for infinite cards */
+:root {
+  --brand-primary-light: rgba(99, 102, 241, 0.08);
+  --brand-accent-light: rgba(236, 72, 153, 0.08);
+}
+
+/* Responsive adjustments for hero card */
+@media (max-width: 640px) {
+  .animated-gradient-card-hero {
+    --border-width-hero: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .animated-gradient-card-hero {
+    --border-width-hero: 3px;
+  }
+}
+
 /* Animated Navbar Icons */
 .nav-icon-wrapper {
   position: relative;
@@ -813,6 +1091,21 @@ a {
   align-items: center;
   transition: 0.5s;
   overflow: visible;
+}
+
+/* Mobile responsive - smaller icons on small screens */
+@media (max-width: 640px) {
+  .nav-icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-icon-wrapper {
+    width: 32px;
+    height: 32px;
+  }
 }
 
 .nav-icon-wrapper::before {
@@ -842,6 +1135,19 @@ a {
 .nav-icon-wrapper:hover {
   width: 130px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0);
+}
+
+/* Disable hover expansion on small screens to prevent overlap */
+@media (max-width: 640px) {
+  .nav-icon-wrapper:hover {
+    width: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-icon-wrapper:hover {
+    width: 32px;
+  }
 }
 
 .nav-icon-wrapper:hover::before {
@@ -882,6 +1188,18 @@ a {
 .nav-icon-wrapper:hover .nav-icon-title {
   transform: scale(1);
   transition-delay: 0.25s;
+}
+
+/* Hide title expansion on small screens */
+@media (max-width: 640px) {
+  .nav-icon-wrapper:hover .nav-icon-title {
+    transform: scale(0);
+  }
+  
+  .nav-icon-wrapper:hover .nav-icon {
+    transform: scale(1);
+    transition-delay: 0s;
+  }
 }
 
 /* Scrolled state for navbar icons */
@@ -1046,6 +1364,29 @@ a {
 
 .nav-scrolled .nav-icon-wrapper:hover {
   width: 110px;
+}
+
+/* Mobile adjustments for scrolled state */
+@media (max-width: 640px) {
+  .nav-scrolled .nav-icon-wrapper {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .nav-scrolled .nav-icon-wrapper:hover {
+    width: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-scrolled .nav-icon-wrapper {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .nav-scrolled .nav-icon-wrapper:hover {
+    width: 28px;
+  }
 }
 
 /* Pencil Loader Animations */

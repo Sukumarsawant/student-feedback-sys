@@ -2,12 +2,9 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="mt-16 border-t border-[var(--brand-secondary)]/45 relative overflow-hidden">
-      {/* Semi-transparent overlay base - behind everything */}
-      <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-0"></div>
-      
-      {/* Wavy Gradient Background - right below content */}
-      <div className="absolute inset-0 footer-wave-bg pointer-events-none z-[9]"></div>
+    <footer className="mt-16 border-t border-[var(--brand-primary)]/20 relative overflow-hidden">
+      {/* Solid gradient background - clean, no blur */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-primary)]/8 via-[var(--brand-accent)]/12 to-[var(--brand-secondary)]/15 z-0"></div>
       
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-12 sm:px-8 lg:px-10 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-start">

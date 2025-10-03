@@ -210,12 +210,12 @@ export default function Navbar() {
       isScrolled ? 'top-2 max-w-2xl' : 'top-6 max-w-6xl'
     }`}>
       <div className={`glass-navbar-enhanced flex items-center rounded-full transition-all duration-500 ease-out ${
-        isScrolled ? 'px-5 py-2.5 justify-between nav-scrolled' : 'px-8 py-4 justify-between'
+        isScrolled ? 'px-3 sm:px-5 py-2.5 justify-between' : 'px-4 sm:px-8 py-4 justify-between'
       }`}>
         
         {/* Left Navigation Icons */}
         <div className={`flex items-center transition-all duration-500 ease-out ${
-          isScrolled ? 'gap-3' : 'gap-4'
+          isScrolled ? 'gap-1.5 sm:gap-3' : 'gap-2 sm:gap-4'
         }`}>
           {/* Home Icon */}
           <Link 
@@ -230,7 +230,7 @@ export default function Navbar() {
             <Home 
               size={isScrolled ? 16 : 18} 
               strokeWidth={2.5} 
-              className="nav-icon"
+              className="nav-icon text-sm sm:text-base"
             />
             <span className="nav-icon-title">Home</span>
           </Link>
@@ -248,7 +248,7 @@ export default function Navbar() {
             <Users 
               size={isScrolled ? 16 : 18} 
               strokeWidth={2.5} 
-              className="nav-icon"
+              className="nav-icon text-sm sm:text-base"
             />
             <span className="nav-icon-title">Team</span>
           </Link>
@@ -266,22 +266,22 @@ export default function Navbar() {
             <Star 
               size={isScrolled ? 16 : 18} 
               strokeWidth={2.5} 
-              className="nav-icon"
+              className="nav-icon text-sm sm:text-base"
             />
             <span className="nav-icon-title">Reviews</span>
           </Link>
         </div>
 
         {/* Center Logo */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center transition-all duration-500 ease-out">
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center transition-all duration-500 ease-out hidden sm:flex">
           <Link href="/" className="transition-transform duration-300 hover:scale-105">
             <Image
               src="/images/logo/Gemini_Generated_Image_hm72xfhm72xfhm72-removebg-preview.png"
               alt="Logo"
-              width={isScrolled ? 80 : 120}
-              height={isScrolled ? 27 : 40}
+              width={isScrolled ? 90 : 160}
+              height={isScrolled ? 30 : 53}
               className={`h-auto object-contain transition-all duration-500 ease-out ${
-                isScrolled ? 'w-[80px]' : 'w-[120px]'
+                isScrolled ? 'w-[90px] sm:w-[90px]' : 'w-[100px] sm:w-[140px] md:w-[160px]'
               }`}
               priority
             />
@@ -290,7 +290,7 @@ export default function Navbar() {
 
         {/* Right Navigation */}
         <div className={`flex items-center transition-all duration-500 ease-out ${
-          isScrolled ? 'gap-3 ml-auto' : 'gap-4 ml-auto'
+          isScrolled ? 'gap-1.5 sm:gap-3 ml-auto' : 'gap-2 sm:gap-4 ml-auto'
         }`}>
           {/* Student Dashboard Icon - Only visible for students */}
           {user && profile?.role === "student" && (
@@ -306,7 +306,7 @@ export default function Navbar() {
               <FileText 
                 size={isScrolled ? 16 : 18} 
                 strokeWidth={2.5} 
-                className="nav-icon"
+                className="nav-icon text-sm sm:text-base"
               />
               <span className="nav-icon-title">Student</span>
             </Link>
@@ -326,7 +326,7 @@ export default function Navbar() {
               <FileText 
                 size={isScrolled ? 16 : 18} 
                 strokeWidth={2.5} 
-                className="nav-icon"
+                className="nav-icon text-sm sm:text-base"
               />
               <span className="nav-icon-title">Dashboard</span>
             </Link>
@@ -335,7 +335,7 @@ export default function Navbar() {
 
         {/* Profile or Login Section */}
         <div className={`flex items-center transition-all duration-500 ease-out ${
-          isScrolled ? 'ml-3' : 'ml-6'
+          isScrolled ? 'ml-2 sm:ml-3' : 'ml-3 sm:ml-6'
         }`}>
           {loading ? (
             <div className={`flex items-center gap-2.5 rounded-full bg-gray-100/80 transition-all duration-500 ease-out ${
