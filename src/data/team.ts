@@ -35,8 +35,8 @@ export const productBuilders: TeamMember[] = [
     role: "Data & Integrations Engineer",
   bio: "Builds the analytics plumbing, automations, and real-time syncs that keep every team in the loop.",
     image: "varshit.jpg",
-    linkedin: "https://www.linkedin.com/in/varshit-deshmukh",
-    github: "https://github.com/varshitdeshmukh",
+    linkedin: "https://www.linkedin.com/feed/",
+    github: "https://github.com/techwithvarshit",
   focus: "Supabase & ETL automation",
   },
   {
