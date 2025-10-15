@@ -31,7 +31,7 @@ export const leadershipTeam: TeamMember[] = [
 
 export const productBuilders: TeamMember[] = [
   {
-    name: "Varshit Deshmukh",
+    name: "Varshit maidham",
     role: "Data & Integrations Engineer",
   bio: "Builds the analytics plumbing, automations, and real-time syncs that keep every team in the loop.",
     image: "varshit.jpg",
@@ -40,12 +40,12 @@ export const productBuilders: TeamMember[] = [
   focus: "Supabase & ETL automation",
   },
   {
-    name: "Soumya Kulkarni",
+    name: "Grishma ",
     role: "Campus Success Partner",
   bio: "Champions adoption playbooks, departmental onboarding, and continuous feedback forums across the campus.",
-    image: "soumya.jpg",
-    linkedin: "https://www.linkedin.com/in/soumya-kulkarni",
-    github: "https://github.com/soumya-kulkarni",
+    image: "grishma.jpg",
+    linkedin: "https://www.linkedin.com/in/Grishma",
+    github: "https://github.com/Grishma",
   focus: "Change management & enablement",
   },
 ];

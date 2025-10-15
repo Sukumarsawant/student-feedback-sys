@@ -21,6 +21,13 @@ const teamMembers = [
     image: "/images/team/varshit.jpg",
     linkedin: "https://linkedin.com/in/username",
     github: "https://github.com/username"
+  },
+  {
+    name: "Grishma",
+    role: "Designer",
+    image: "/images/team/grishma.jpg",
+    linkedin: "https://linkedin.com/in/grishma",
+    github: "https://github.com/grishma"
   }
 ];
 
