@@ -51,7 +51,7 @@ export default async function HomePage() {
         <div className="relative z-10 flex flex-col gap-16 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl space-y-8">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-[var(--brand-primary)] shadow-lg backdrop-blur-sm">
-              VIT - DBMS project
+              VIT -  project
             </div>
             <h1 className="text-4xl font-bold leading-snug text-white sm:text-5xl drop-shadow-lg">
               A campus feedback studio to replace forms.
